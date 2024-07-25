@@ -1,29 +1,174 @@
+import 'dart:convert';
+
 import 'package:brasil_datetime/brasil_datetime.dart';
+import 'package:card_loading/card_loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:if_travel/app/ui/web/widget/alerta.dart';
+import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../api.dart';
 import '../../../config/app_colors.dart';
+import '../../data/model/evento.dart';
+import '../../data/model/eventoUsuario.dart';
+import '../../data/model/usuario.dart';
+import '../../routes/app_routes.dart';
 
 class DetalhesEvento extends StatefulWidget {
-  const DetalhesEvento({super.key});
+  DetalhesEvento({super.key});
 
   @override
   State<DetalhesEvento> createState() => _DetalhesEventoState();
 }
 
 class _DetalhesEventoState extends State<DetalhesEvento> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late Usuario usuario = Usuario();
+  late Evento evento;
+  List<EventoUsuario> eventosUsuario = [];
+  Set<int> eventoIds = Set();
+  late String storedToken = '';
+  bool loading = true;
+  bool inscrito = false;
+  int vagasDisponiveis = 0;
+  var args = Get.arguments;
+  String id = Get.parameters['id'] ?? '';
+
+  _obterToken() async{
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      storedToken = prefs.getString('if_travel_jwt_token') ?? '';
+    });
+  }
+
+
+  _buscarUsuario() async{
+    await _obterToken();
+    if(storedToken != '') {
+      Map<String, String> requestHeaders = {
+        'Authorization': "Bearer "+storedToken
+      };
+      var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
+      if(response.statusCode == 200) {
+        response = json.decode(response.body);
+        setState(() {
+          usuario = Usuario.fromJson(response);
+          eventosUsuario = usuario.eventos!.map((e) {
+            return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
+          }).toList();
+          eventoIds = eventosUsuario.map((e) => e.eventoId).toSet();
+          inscrito = eventoIds.contains(evento.id!);
+          loading = false;
+        });
+      }
+    }else{
+      setState(() {
+        loading=false;
+      });
+    }
+  }
+
+  Future<int> _buscarVagas(id) async{
+      Map<String, String> requestHeaders = {
+        'id': id.toString()
+      };
+      var response = await API.requestGet('eventos/obter-vagas', requestHeaders);
+      if(response.statusCode == 200) {
+        return int.parse(response.body);
+        // setState(() {
+        //   vagasDisponiveis = int.parse(response.body);
+        // });
+      }else{
+        return 0;
+      }
+  }
+
+  _inserirVisitas(id) async{
+    Map<String, String> requestHeaders = {
+      'id': id.toString()
+    };
+    await API.requestGet('eventos/inserir-visita', requestHeaders);
+  }
+
+  _buscarEvento(id) async{
+    Map<String, String> requestHeaders = {
+      'id': id
+    };
+    var response = await API.requestGet('eventos/buscar', requestHeaders);
+    if(response.statusCode == 200) {
+      //utf8.decode(response.body);
+      var teste =utf8.decode(response.bodyBytes);
+      Evento ev = Evento.fromJson(json.decode(teste));
+      setState(() {
+        evento = ev;
+      });
+    }
+  }
+
+  _inscrever(eventoId, usuarioId) async{
+
+    var body = {
+      "eventoId": eventoId.toString(),
+      "usuarioId": usuarioId.toString()
+    };
+    Map<String, String> requestHeaders = {
+      'Authorization': "Bearer "+storedToken,
+      'eventoId': eventoId.toString(),
+      'usuarioId': usuarioId.toString()
+    };
+    var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
+    if(response.statusCode == 200) {
+      //response = json.decode(response.body);
+      Get.offAndToNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', response.body), arguments: response.body);
+    }else{
+      return alertErro(context, "Erro", "Falha ao realizar inscrição");
+    }
+  }
+
+  _iniciar() async {
+    if(args != null){
+      setState(() {
+      evento = args;
+      });
+    }else{
+      await _buscarEvento(id);
+    }
+    vagasDisponiveis = await _buscarVagas(evento.id);
+    await _buscarUsuario();
+    await _inserirVisitas(id);
+  }
+
+
+  List<String> documentos = ['Copia do RG', 'Comprovante de Residencia', 'Cartão de vacinação', 'Autorização assinada'];
+
+  @override
+  initState() {
+    // TODO: implement initState
+    super.initState();
+    _iniciar();
+  }
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 50, left: 50, right: 50),
+      appBar: usuario.id == null ? appBarSemLogin(context) : appBarComLogin(context),
+      body: loading == true ? Center(
+        child: LoadingAnimationWidget.twoRotatingArc(
+          color: Colors.black,
+          size: 200,
+        ),
+      ) : Padding(
+        padding: const EdgeInsets.only(top: 0, left: 50, right: 50),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 10,),
               Stack(
                 children: [
                   Container(
@@ -37,10 +182,10 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30.0),
                         child: Image.network(
-                          'https://digipaper.com.br/wp-content/uploads/2019/01/2018_05_04.jpg',
+                          evento.imagem!,
                           fit: BoxFit.cover,
                           opacity: AlwaysStoppedAnimation(.5),
-                          height: screenSize.height * 0.55,
+                          height: screenSize.height * 0.45,
                           width: screenSize.width,
                         ),
                       ),
@@ -50,7 +195,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                     left: 30,
                     bottom: 20,
                     child: Text(
-                      "  20º Congresso Nacional de programação  ",
+                      "  ${evento.nome!}  ",
                       style: TextStyle(
                         fontSize: 40,
                         color: Colors.white,
@@ -75,12 +220,12 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                             height: 1.5,
-                            color: Color(0xFF4A709C),
+                            color: AppColors.mainBlueColor,
                           ),
                         ),
                       SizedBox(height: 5,),
                       Text(
-                          "O Lorem Ipsum é um texto modelo da indústria tipográfica e de impressão. O Lorem Ipsum tem vindo a ser o texto padrão usado por estas indústrias desde o ano de 1500, quando uma misturou os caracteres de um texto para criar um espécime de livro. Este texto não só sobreviveu 5 séculos, mas também o salto para a tipografia electrónica, mantendo-se essencialmente inalterada. Foi popularizada nos anos 60 com a disponibilização das folhas de Letraset, que continham passagens com Lorem Ipsum, e mais recentemente com os programas de publicação como o Aldus PageMaker que incluem versões do Lorem Ipsum",
+                          evento.descricao! == '' ? "Sem Descrição" : evento.descricao!,
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
@@ -104,11 +249,11 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                     height: 1.5,
-                                    color: Color(0xFF4A709C),
+                                    color: AppColors.mainBlueColor,
                                   ),
                                 ),
                                 Text(
-                                  DateTime.now().semanaDiaMesAnoExt().toString().capitalize(),
+                                  evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
@@ -129,11 +274,11 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                     height: 1.5,
-                                    color: Color(0xFF4A709C),
+                                    color: AppColors.mainBlueColor,
                                   ),
                                 ),
                                 Text(
-                                  "Recife-PE",
+                                  evento.local!,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
@@ -149,7 +294,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                       SizedBox(height: 5,),
                       Divider(),
                       SizedBox(height: 5,),
-                      const Row(
+                      Row(
                         children: [
                           Expanded(
                             child: Column(
@@ -161,11 +306,11 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                     height: 1.5,
-                                    color: Color(0xFF4A709C),
+                                    color: AppColors.mainBlueColor,
                                   ),
                                 ),
                                 Text(
-                                  "1000",
+                                  evento.vagas!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
@@ -186,11 +331,11 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
                                     height: 1.5,
-                                    color: Color(0xFF4A709C),
+                                    color: AppColors.mainBlueColor,
                                   ),
                                 ),
                                 Text(
-                                  "50",
+                                  vagasDisponiveis.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
@@ -207,118 +352,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                   ),
                 ),
               ),
-              // Container(
-              //   margin: EdgeInsets.fromLTRB(16, 0, 16, 32),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.start,
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       Container(
-              //         margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-              //         width: 456,
-              //         decoration: BoxDecoration(
-              //           border: Border.all(color: Color(0xFFCFDBE8)),
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         child: Container(
-              //           padding: EdgeInsets.fromLTRB(24, 24, 0, 24),
-              //           child: Column(
-              //             mainAxisAlignment: MainAxisAlignment.start,
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             children: [
-              //               Container(
-              //                 margin: EdgeInsets.fromLTRB(0, 0, 0, 8),
-              //                 child: Align(
-              //                   alignment: Alignment.topLeft,
-              //                   child: Container(
-              //                     child:
-              //                     Text(
-              //                       'Total places',
-              //                       style: TextStyle(
-              //
-              //                         fontWeight: FontWeight.w500,
-              //                         fontSize: 16,
-              //                         height: 1.5,
-              //                         color: Color(0xFF0D141C),
-              //                       ),
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ),
-              //               Align(
-              //                 alignment: Alignment.topLeft,
-              //                 child: Container(
-              //                   child:
-              //                   Text(
-              //                     '100',
-              //                     style: TextStyle(
-              //
-              //                       fontWeight: FontWeight.w700,
-              //                       fontSize: 24,
-              //                       height: 1.3,
-              //                       color: Color(0xFF0D141C),
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ),
-              //       Container(
-              //         width: 456,
-              //         decoration: BoxDecoration(
-              //           border: Border.all(color: Color(0xFFCFDBE8)),
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         child: Container(
-              //           padding: EdgeInsets.fromLTRB(24, 24, 0, 24),
-              //           child: Column(
-              //             mainAxisAlignment: MainAxisAlignment.start,
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             children: [
-              //               Container(
-              //                 margin: EdgeInsets.fromLTRB(0, 0, 0, 8),
-              //                 child: Align(
-              //                   alignment: Alignment.topLeft,
-              //                   child: Container(
-              //                     child:
-              //                     Text(
-              //                       'Available places',
-              //                       style: TextStyle(
-              //
-              //                         fontWeight: FontWeight.w500,
-              //                         fontSize: 16,
-              //                         height: 1.5,
-              //                         color: Color(0xFF0D141C),
-              //                       ),
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ),
-              //               Align(
-              //                 alignment: Alignment.topLeft,
-              //                 child: Container(
-              //                   child:
-              //                   Text(
-              //                     '60',
-              //                     style: TextStyle(
-              //
-              //                       fontWeight: FontWeight.w700,
-              //                       fontSize: 24,
-              //                       height: 1.3,
-              //                       color: Color(0xFF0D141C),
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+
               Container(
                 margin: EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Align(
@@ -326,61 +360,56 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                   child: Container(
                     child:
                     Text(
-                      'Mandatory documents',
+                      'Documentos Obrigatórios',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
                         height: 1.3,
-                        color: Color(0xFF0D141C),
+                        color: AppColors.mainBlueColor,
                       ),
                     ),
                   ),
                 ),
               ),
               Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFFF7FAFC),
-                ),
-                child: SizedBox(
-                  width: 960,
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(16, 12, 0, 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFE8EDF5),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                              child:
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: Icon(Icons.file_copy),
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: MediaQuery.of(context).size.width * 0.90,
+                child: ListView.builder(
+                  //controller: _scrollController,
+                  scrollDirection: Axis.vertical,
+                  itemCount: evento.documentos.length,
+                  itemBuilder: (contex, index) => Container(
+                    child: SizedBox(
+                      width: 960,
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(16, 12, 0, 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFE8EDF5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Container(
+                                  width: 38,
+                                  height: 38,
+                                  padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+                                  child:Icon(Icons.file_copy, size: 15,),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Align(
+                            Container(
+                              margin: EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+                              child: Align(
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child:
                                   Text(
-                                    'Government-issued ID',
+                                    evento.documentos[index].documento.nome!,
                                     style: TextStyle(
 
                                       fontWeight: FontWeight.w500,
@@ -391,207 +420,68 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                   ),
                                 ),
                               ),
-                              Container(
-                                child:
-                                Text(
-                                  'File types: .pdf, .png, .jpeg, .jpg',
-                                  style: TextStyle(
-
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    height: 1.5,
-                                    color: Color(0xFF4A709C),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFFF7FAFC),
-                ),
-                child: SizedBox(
-                  width: 960,
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(16, 12, 0, 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xFFE8EDF5),
-                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                              child:
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: Icon(Icons.file_copy),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                child:
-                                Text(
-                                  'Proof of business registration',
-                                  style: TextStyle(
-
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Color(0xFF0D141C),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0, 0, 19.3, 0),
-                                child:
-                                Text(
-                                  'File types: .pdf, .png, .jpeg, .jpg',
-                                  style: TextStyle(
-
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    height: 1.5,
-                                    color: Color(0xFF4A709C),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 0, 12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF7FAFC),
-                  ),
-                  child: SizedBox(
-                    width: 960,
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(16, 12, 0, 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xFFE8EDF5),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Container(
-                                width: 48,
-                                height: 48,
-                                padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                                child:
-                                SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Icon(Icons.file_copy),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  child:
-                                  Text(
-                                    'Proof of website ownership',
-                                    style: TextStyle(
-
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                      height: 1.5,
-                                      color: Color(0xFF0D141C),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.fromLTRB(0, 0, 3.1, 0),
-                                  child:
-                                  Text(
-                                    'File types: .pdf, .png, .jpeg, .jpg',
-                                    style: TextStyle(
-
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 14,
-                                      height: 1.5,
-                                      color: Color(0xFF4A709C),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    width: 960,
-                    child:
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF0D7DF2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Container(
-                        width: 480,
-                        padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
-                        child:
-                        Text(
-                          'Register now',
-                          style: TextStyle(
-
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            height: 1.5,
-                            color: Color(0xFFF7FAFC),
-                          ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
+
+              Container(
+                margin: EdgeInsets.only(bottom: 30, top: 20),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mainBlueColor,
+                    minimumSize: const Size.fromHeight(50), // NEW
+                  ),
+                  onPressed: eventoIds.contains(evento.id!) || vagasDisponiveis == 0 ? null : () {
+                    if(usuario.id == null) {
+                      Get.offAndToNamed(Routes.LOGIN, arguments: evento);
+                    }else {
+                      alertConfirm(
+                          context, _buscarVagas, evento.id!, _inscrever,
+                          usuario.id);
+                    }
+                  },
+                  child: Text(
+                    eventoIds.contains(evento.id!) ? "Inscrito" : vagasDisponiveis == 0 ? "Esgotado" : 'Inscreva-se',
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  ),
+                ),
+              ),
+              // Container(
+              //   margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              //   child: Align(
+              //     alignment: Alignment.topLeft,
+              //     child: Container(
+              //       width: 960,
+              //       child:
+              //       Container(
+              //         decoration: BoxDecoration(
+              //           color: Color(0xFF0D7DF2),
+              //           borderRadius: BorderRadius.circular(12),
+              //         ),
+              //         child: Container(
+              //           width: 480,
+              //           padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
+              //           child:
+              //           Text(
+              //             'Register now',
+              //             style: TextStyle(
+              //
+              //               fontWeight: FontWeight.w700,
+              //               fontSize: 16,
+              //               height: 1.5,
+              //               color: Color(0xFFF7FAFC),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -605,3 +495,12 @@ extension StringExtensions on String {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
+
+Widget cardLoading(){
+  return CardLoading(
+    height: 100,
+    borderRadius: BorderRadius.all(Radius.circular(10)),
+    margin: EdgeInsets.only(bottom: 10),
+  );
+}
+

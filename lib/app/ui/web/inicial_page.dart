@@ -137,7 +137,7 @@ class _InicialPageState extends State<InicialPage> {
                                     backgroundColor: AppColors.mainBlueColor
                                 ),),
                                 SizedBox(height: 10,),
-                                Text("  "+DateTime.now().semanaDiaMesAnoExt().toString()+"  ", style: TextStyle(
+                                Text("  "+DateTime.now().semanaDiaMesAnoExt().toString().capitalizeFirst!+"  ", style: TextStyle(
                                     fontSize: 30,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

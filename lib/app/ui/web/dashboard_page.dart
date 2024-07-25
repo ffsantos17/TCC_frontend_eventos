@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
 import 'package:if_travel/app/ui/web/widget/evento_card.dart';
 
@@ -16,7 +15,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  List<Evento> eventos = new Evento().eventos;
   List<EventoUsuario> eventosUsuario = [];
   List<EventoUsuario> eventosProximos = [];
   List<EventoUsuario> eventosPendentes = [];

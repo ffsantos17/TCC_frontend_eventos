@@ -12,8 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../api.dart';
 import '../../../data/model/eventoUsuario.dart';
 import '../../../routes/app_routes.dart';
-import 'alerta.dart';
-
 class EventoCard extends StatefulWidget {
   Evento evento;
   EventoCard({super.key, required this.evento});
@@ -128,9 +126,11 @@ class _EventoCardState extends State<EventoCard> {
                 Text(widget.evento.data!.semanaDiaMesAnoExt().toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
                 SizedBox(height: 8,),
                 ElevatedButton(
-                  onPressed: usuario.id == null ? () {Get.toNamed(Routes.LOGIN);} : eventoIds.contains(widget.evento.id!) ? null : () async {
-                  var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
-                  alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);
+                  onPressed: usuario.id == null ? () {Get.offAndToNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
+                    Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()));
+
+                    // var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
+                  // alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);
 
                   // String response = await _buscarVagas(widget.evento.id!);
                   // int vagas = int.parse(response);
@@ -144,7 +144,7 @@ class _EventoCardState extends State<EventoCard> {
                   //   }
                   // }
                   },
-                  child: Text(eventoIds.contains(widget.evento.id!) ? "Inscrito" : "Inscreva-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),style: ElevatedButton.styleFrom(
+                  child: Text("Detalhes", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.all(17),
                   minimumSize: Size(0, 0),
                   elevation: 0,
@@ -168,38 +168,3 @@ class _EventoCardState extends State<EventoCard> {
 }
 
 
-Future<String?> alertConfirm(BuildContext context, function, id, inscrever, usuarioId) {
-  return showDialog<String>(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: Text('Confirmar'),
-      content: Text('Deseja se inscrever nesse evento?'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () async {
-            Navigator.pop(context);
-            String response = await function(id);
-            int vagas = int.parse(response);
-            if(response == 'erro'){
-              print("erro");
-            }else{
-              if(vagas > 0){
-                inscrever(id, usuarioId);
-              }else{
-                alertErro(context, "Erro",'As vagas esgotaram!');
-              }
-            }
-          },
-          child: const Text('Sim'),
-        ),
-
-        TextButton(
-          onPressed: () => Navigator.pop(context, 'Não'),
-          child: const Text('Não'),
-        ),
-      ],
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12.0))),
-    ),
-  );
-}

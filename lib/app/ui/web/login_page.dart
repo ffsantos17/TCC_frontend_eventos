@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:if_travel/api.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
-import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/alerta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config/app_colors.dart';
-import 'package:http/http.dart' as http;
+
+import '../../data/model/evento.dart';
 
 
 class TelaLogin extends StatefulWidget {
@@ -43,12 +43,17 @@ class _TelaLoginState extends State<TelaLogin> {
       Get.toNamed(Routes.HOME);
     }
   }
-
+  var args = Get.arguments;
+  late Evento evento;
   @override
   void initState() {
     // TODO: implement initState
     _verificarLogin();
     super.initState();
+    if(args != null){
+      evento = args;
+    }
+
   }
 
   @override
@@ -213,8 +218,13 @@ class _TelaLoginState extends State<TelaLogin> {
                             alertErro(context, "Erro","Usuario ou senha inválidos");
                           }else{
                             token = response.body;
-                            await prefs.setString('if_travel_jwt_token', token);
-                            Get.toNamed(Routes.HOME);
+                            await prefs.setString(
+                                'if_travel_jwt_token', token);
+                            if(args != null){
+                              Get.offAndToNamed(Routes.DETALHE_EVENTO.replaceAll(':id', evento.id.toString()), arguments: evento);
+                            }else {
+                              Get.offAndToNamed(Routes.HOME);
+                            }
                           }
                         },
                         borderRadius: BorderRadius.circular(16.0),

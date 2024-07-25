@@ -17,3 +17,39 @@ Future<String?> alertErro(BuildContext context, titulo, mensagem) {
     ),
   );
 }
+
+Future<String?> alertConfirm(BuildContext context, function, id, inscrever, usuarioId) {
+  return showDialog<String>(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text('Confirmar'),
+      content: Text('Deseja se inscrever nesse evento?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            int response = await function(id);
+            int vagas = response;
+            if(response == 'erro'){
+              print("erro");
+            }else{
+              if(vagas > 0){
+                inscrever(id, usuarioId);
+              }else{
+                alertErro(context, "Erro",'As vagas esgotaram!');
+              }
+            }
+          },
+          child: const Text('Sim'),
+        ),
+
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Não'),
+          child: const Text('Não'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.0))),
+    ),
+  );
+}

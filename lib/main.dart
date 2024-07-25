@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:if_travel/app/routes/app_pages.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
-import 'package:if_travel/app/ui/web/login_page.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
+  usePathUrlStrategy();
   runApp(const MyApp());
 }
 

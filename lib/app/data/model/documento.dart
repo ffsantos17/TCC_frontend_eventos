@@ -22,4 +22,10 @@ class Documento{
       Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
     ];
   }
+
+  Documento.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        nome = json['nome'],
+        possuiModelo = json['possuiModelo'],
+        modelo = json['modelo'];
 }
