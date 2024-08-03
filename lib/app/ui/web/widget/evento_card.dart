@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
+import 'package:if_travel/config/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../api.dart';
@@ -114,6 +115,7 @@ class _EventoCardState extends State<EventoCard> {
       borderRadius: BorderRadius.all(Radius.circular(10)),
       margin: EdgeInsets.only(bottom: 10),
     ) : Card(
+      color: AppColors.greyColor,
       child: Padding(
         padding: EdgeInsets.only(left: 20, right: 20),
         child: Row(
@@ -127,7 +129,7 @@ class _EventoCardState extends State<EventoCard> {
                 SizedBox(height: 8,),
                 ElevatedButton(
                   onPressed: usuario.id == null ? () {Get.offAndToNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
-                    Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()));
+                    Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()), arguments: [widget.evento, false]);
 
                     // var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
                   // alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);

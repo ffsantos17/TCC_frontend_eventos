@@ -7,7 +7,7 @@ class AppColors {
   static const Color greenDarkColor = Color(0xff245020);
   static const Color blueDarkColor = Color(0xff202850);
   static const Color textColor = Color(0xff53587A);
-  static const Color greyColor = Color(0xFFE8EDF5);
+  static const Color greyColor = Color(0xFFF1F1F1);
   static const Color whiteColor = Color(0xffFFFFFF);
   static const Color customGrey = Color(0xff959595);
   static const Color black = Color(0xff000000);

@@ -39,12 +39,16 @@ PreferredSizeWidget appBarSemLogin(context){
 
 PreferredSizeWidget appBarComLogin(context){
   return AppBar(
+      surfaceTintColor: Color(0xFFFFFF),
+      elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
             onPressed: (){
               var args = Get.arguments;
-              if(args != null){
+              bool useRoute = args != null ? args[1] ?? true : true;
+              print(useRoute.toString());
+              if(useRoute == true || !Navigator.canPop(context)){
                 Get.offAndToNamed(Routes.HOME);
               }else{
                 Navigator.pop(context);

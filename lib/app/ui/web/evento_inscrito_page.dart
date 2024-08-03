@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
 
 import '../../../config/app_colors.dart';
+import '../../data/model/eventoUsuario.dart';
 
 class EventoInscrito extends StatefulWidget {
   const EventoInscrito({super.key});
@@ -15,6 +16,7 @@ class EventoInscrito extends StatefulWidget {
 
 class _EventoInscritoState extends State<EventoInscrito> {
   String id = Get.parameters['id'] ?? '';
+  EventoUsuario evento = Get.arguments[0];
   List<String> documentos = [
     'Copia do RG',
     'Comprovante de Residencia',
@@ -31,7 +33,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Details for ID: $id',
+                evento.evento.nome!,
                 style: TextStyle(
                   fontSize: 40,
                   color: Colors.black,
@@ -40,7 +42,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
               ),
               SizedBox(height: 10,),
               Text(
-                DateTime.now().semanaDiaMesAnoExt().toString().capitalizeFirst!,
+                evento.evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.black,
@@ -50,7 +52,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
               SizedBox(height: 10,),
               Row(children: [
                 Text(
-                  "Status: Pendente ",
+                  "Status: "+evento.status,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.black,
@@ -77,7 +79,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
                 child: ListView.builder(
                   //controller: _scrollController,
                   scrollDirection: Axis.vertical,
-                  itemCount: documentos.length,
+                  itemCount: evento.documentos.length,
                   itemBuilder: (contex, index) => Container(
                     child: SizedBox(
                       width: 960,
@@ -109,7 +111,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
                                 child: Container(
                                   child:
                                   Text(
-                                    documentos[index],
+                                    evento.documentos[index].documento.nome!,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 16,
@@ -122,18 +124,18 @@ class _EventoInscritoState extends State<EventoInscrito> {
                             ),
                             Spacer(),
                             ElevatedButton.icon(
-                              icon: Icon(Icons.attach_file, color: AppColors.black,),
-                              label: Text("Anexar", style: TextStyle(color: AppColors.black),),
+                              icon: Icon(evento.documentos[index].entregue ? Icons.done : Icons.attach_file, color: AppColors.black,),
+                              label: Text(evento.documentos[index].entregue ? "Anexado" : "Anexar", style: TextStyle(color: AppColors.black),),
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.all(17),
-                                minimumSize: Size(0, 0),
+                                minimumSize: Size(200, 40),
                                 elevation: 0,
                                 backgroundColor: AppColors.greyColor,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10), // <-- Radius
                                 ),
                               ),
-                              onPressed: () {
+                              onPressed: evento.documentos[index].entregue ? null : () {
                                 // Ação do botão de anexar
                               },
 

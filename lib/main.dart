@@ -3,6 +3,7 @@ import 'package:get/route_manager.dart';
 import 'package:if_travel/app/routes/app_pages.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:if_travel/config/app_colors.dart';
 
 void main() {
   usePathUrlStrategy();
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainBlueColor),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,

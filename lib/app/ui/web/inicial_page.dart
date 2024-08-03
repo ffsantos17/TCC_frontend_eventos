@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:card_loading/card_loading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:brasil_datetime/brasil_datetime.dart';
@@ -24,6 +25,8 @@ class _InicialPageState extends State<InicialPage> {
   List<Evento> eventos = <Evento>[];
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TextEditingController buscaController = new TextEditingController();
+  Evento topEvento = Evento(documentos: []);
+  bool loading = true;
 
   _buscarEventos() async{
       var response = await API.requestGet('eventos/listar', null);
@@ -33,6 +36,8 @@ class _InicialPageState extends State<InicialPage> {
         setState(() {
           eventosDB = lista.map((model) => Evento.fromJson(model)).toList();
           eventos = eventosDB;
+          topEvento = eventosDB.reduce((current, next) => next.visitas! > current.visitas! ? next : current);
+          loading = false;
         });
       }else{
         // await prefs.remove('if_travel_jwt_token');
@@ -103,7 +108,7 @@ class _InicialPageState extends State<InicialPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Stack(
+                    loading == true ? CardLoading(height: screenSize.height * 0.55, animationDuration: Duration(milliseconds: 2000),) : Stack(
                       children: [
                         Container(
                           decoration: BoxDecoration(
@@ -115,7 +120,7 @@ class _InicialPageState extends State<InicialPage> {
                           child: SizedBox(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(30.0),
-                              child: Image.network('https://digipaper.com.br/wp-content/uploads/2019/01/2018_05_04.jpg',
+                              child: Image.network(topEvento.imagem!,
                                 fit: BoxFit.cover,
                                 opacity: AlwaysStoppedAnimation(.5),
                                 height: screenSize.height * 0.55,
@@ -130,14 +135,14 @@ class _InicialPageState extends State<InicialPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("  20º Congresso Nacional de programação  ", style: TextStyle(
+                                Text("  "+topEvento.nome!+"  ", style: TextStyle(
                                     fontSize: 30,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     backgroundColor: AppColors.mainBlueColor
                                 ),),
                                 SizedBox(height: 10,),
-                                Text("  "+DateTime.now().semanaDiaMesAnoExt().toString().capitalizeFirst!+"  ", style: TextStyle(
+                                Text("  "+topEvento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!+"  ", style: TextStyle(
                                     fontSize: 30,
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -149,7 +154,7 @@ class _InicialPageState extends State<InicialPage> {
                                     padding: EdgeInsets.all(17),
                                     minimumSize: Size(0, 0),
                                     elevation: 0,
-                                    backgroundColor: Color(0xff3853a1),
+                                    backgroundColor: AppColors.mainBlueColor,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5), // <-- Radius
                                     ),
@@ -189,6 +194,7 @@ class _InicialPageState extends State<InicialPage> {
                     ),
                     SizedBox(height: 30,),
                     Text("Eventos Populares", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),),
+                    loading == true ? Column(children: [CardLoading(height: 150),SizedBox(height: 5,), CardLoading(height: 150),SizedBox(height: 5,), CardLoading(height: 150)],) :
                     Container(
                       height: eventos.length * 175,
                       child: Flexible(

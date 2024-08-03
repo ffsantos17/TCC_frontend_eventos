@@ -36,6 +36,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   bool inscrito = false;
   int vagasDisponiveis = 0;
   var args = Get.arguments;
+  late bool useRoute = false;
   String id = Get.parameters['id'] ?? '';
 
   _obterToken() async{
@@ -123,7 +124,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
     var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
     if(response.statusCode == 200) {
       //response = json.decode(response.body);
-      Get.offAndToNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', response.body), arguments: response.body);
+      Get.offAndToNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', response.body), arguments: [response.body, true]);
     }else{
       return alertErro(context, "Erro", "Falha ao realizar inscrição");
     }
@@ -132,7 +133,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   _iniciar() async {
     if(args != null){
       setState(() {
-      evento = args;
+      evento = args[0];
+      useRoute = args[1];
       });
     }else{
       await _buscarEvento(id);

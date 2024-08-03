@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
 import 'package:if_travel/app/ui/web/widget/evento_card.dart';
+import 'package:if_travel/config/app_colors.dart';
 
 import '../../data/model/eventoUsuario.dart';
 
@@ -105,11 +106,11 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,
+      color: AppColors.greyColor,
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(color: Colors.grey), // Bordas cinzas
+        // side: BorderSide(color: AppColors.customGrey), // Bordas cinzas
       ),
       child: SizedBox(
         width: (MediaQuery.of(context).size.width-MediaQuery.of(context).size.width*0.2) * 0.3, // Ajusta a largura de acordo com a tela

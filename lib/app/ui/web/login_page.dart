@@ -218,10 +218,9 @@ class _TelaLoginState extends State<TelaLogin> {
                             alertErro(context, "Erro","Usuario ou senha inválidos");
                           }else{
                             token = response.body;
-                            await prefs.setString(
-                                'if_travel_jwt_token', token);
+                            await prefs.setString('if_travel_jwt_token', token);
                             if(args != null){
-                              Get.offAndToNamed(Routes.DETALHE_EVENTO.replaceAll(':id', evento.id.toString()), arguments: evento);
+                              Get.offAndToNamed(Routes.DETALHE_EVENTO.replaceAll(':id', evento.id.toString()), arguments: [evento, true]);
                             }else {
                               Get.offAndToNamed(Routes.HOME);
                             }

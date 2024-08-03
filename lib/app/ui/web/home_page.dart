@@ -9,6 +9,7 @@ import 'package:if_travel/app/ui/web/documentos_page.dart';
 import 'package:if_travel/app/ui/web/eventos_page.dart';
 import 'package:if_travel/app/ui/web/incricoes_page.dart';
 import 'package:if_travel/app/ui/web/usuarios_page.dart';
+import 'package:if_travel/config/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,6 +97,10 @@ class _HomePageState extends State<HomePage> {
           children: [
             Expanded(
               child: Drawer(
+                backgroundColor: AppColors.greyColor,
+                shape:  const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
                 child: Column(
                   children: [
                     DrawerHeader(
@@ -127,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           ListTile(
                             title: Text("Minhas Incrições"),
-                            leading: Icon(Icons.event),
+                            leading: Icon(Icons.event_available),
                             onTap: () async {
                               await _verificarLogin();
                               tela(1);
