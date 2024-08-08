@@ -49,9 +49,9 @@ class _EventoCardState extends State<EventoCard> {
         response = json.decode(response.body);
         setState(() {
           usuario = Usuario.fromJson(response);
-          eventosUsuario = usuario.eventos!.map((e) {
-            return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          }).toList();
+          // eventosUsuario = usuario.eventos!.map((e) {
+          //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
+          // }).toList();
           eventoIds = eventosUsuario.map((e) => e.eventoId).toSet();
           inscrito = eventoIds.contains(widget.evento.id!);
           loading = false;
@@ -128,8 +128,8 @@ class _EventoCardState extends State<EventoCard> {
                 Text(widget.evento.data!.semanaDiaMesAnoExt().toString(), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
                 SizedBox(height: 8,),
                 ElevatedButton(
-                  onPressed: usuario.id == null ? () {Get.offAndToNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
-                    Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()), arguments: [widget.evento, false]);
+                  onPressed: usuario.id == null ? () {Get.toNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
+                    Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()), arguments: {'evento': widget.evento, 'useRoute': false});
 
                     // var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
                   // alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);

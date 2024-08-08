@@ -13,6 +13,7 @@ import 'package:if_travel/config/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../controller/authController.dart';
 import '../../data/model/eventoUsuario.dart';
 import '../../routes/app_routes.dart';
 import 'dashboard_page.dart';
@@ -21,13 +22,15 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
+  final AuthController controller = Get.find();
   int _indiceAtual = 0;
   Usuario usuario = Usuario();
   bool loading = true;
+  var token = '';
   List<EventoUsuario> eventosUsuario = [];
   void initState() {
     super.initState();
@@ -40,29 +43,35 @@ class _HomePageState extends State<HomePage> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   _verificarLogin() async{
-    final SharedPreferences prefs = await _prefs;
-    String? storedToken = prefs.getString('if_travel_jwt_token');
-    print(storedToken);
-    if(storedToken != null) {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken
-      };
-      var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
-      if(response.statusCode == 200) {
-        response = json.decode(response.body);
-        setState(() {
-          usuario = Usuario.fromJson(response);
-          eventosUsuario = usuario.eventos!.map((e) {
-            return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          }).toList();
-
-          tela(usuario.tipoUsuarioId == 1 ? 1 : 0);
-          loading = false;
-        });
-      }else{
-        await prefs.remove('if_travel_jwt_token');
-        Get.toNamed(Routes.LOGIN);
-      }
+    // final SharedPreferences prefs = await _prefs;
+    // String? storedToken = prefs.getString('if_travel_jwt_token');
+    String? storedToken = controller.token.value;
+    // print(storedToken);
+    if(storedToken.isNotEmpty) {
+      usuario = controller.usuario!;
+      tela(usuario.tipoUsuarioId != 2 ? 2 : 0);
+      _indiceAtual = usuario.tipoUsuarioId != 2 ? 2 : 0;
+      loading = false;
+      // Map<String, String> requestHeaders = {
+      //   'Authorization': "Bearer "+storedToken
+      // };
+      // var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
+      // if(response.statusCode == 200) {
+      //   response = json.decode(response.body);
+      //   setState(() {
+      //     usuario = Usuario.fromJson(response);
+      //     // eventosUsuario = usuario.eventos!.map((e) {
+      //     //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
+      //     // }).toList();
+      //
+      //     tela(usuario.tipoUsuarioId == 1 ? 1 : 0);
+      //     token = storedToken;
+      //     loading = false;
+      //   });
+      // }else{
+      //   await prefs.remove('if_travel_jwt_token');
+      //   Get.toNamed(Routes.LOGIN);
+      // }
     }else{
       Get.toNamed(Routes.LOGIN);
     }
@@ -71,7 +80,7 @@ class _HomePageState extends State<HomePage> {
   void tela(indice){
     final List<Widget> _telas = [
       Dashboard(usuario: usuario,),
-      ListaInscricoes(eventos: eventosUsuario),
+      ListaInscricoes(eventos: usuario.eventos!),
       ListaEventos(usuario: usuario,),
       ListaDocumentos(),
       ListaUsuarios()
@@ -113,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                               width: 100,
                             ),
                             SizedBox(height: 10,),
-                            Flexible(child: Text(usuario.nome!)),
+                            Flexible(child: Text(controller.usuario!.nome!)),
                           ],
                         ),
                       ),
@@ -121,33 +130,38 @@ class _HomePageState extends State<HomePage> {
                     Expanded(
                       child: ListView(
                         children: [
-                          usuario.tipoUsuarioId == 1 ? SizedBox() : ListTile(
-                            title: Text("Dashboard"),
-                            leading: Icon(Icons.dashboard),
-                            onTap: () async {
-                              await _verificarLogin();
-                              tela(0);
-                            },
-                            tileColor: _indiceAtual == 0 ? Colors.white : Colors.transparent,
-                          ),
-                          ListTile(
-                            title: Text("Minhas Incrições"),
-                            leading: Icon(Icons.event_available),
-                            onTap: () async {
-                              await _verificarLogin();
-                              tela(1);
-                            },
-                            tileColor: _indiceAtual == 1 ? Colors.white : Colors.transparent,
-                          ),
-                          ListTile(
-                            title: Text("Eventos"),
-                            leading: Icon(Icons.event),
-                            onTap: () async {
-                              await _verificarLogin();
-                              tela(2);
-                            },
-                            tileColor: _indiceAtual == 2 ? Colors.white : Colors.transparent,
-                          ),
+
+                          usuario.tipoUsuarioId == 1 ? SizedBox() :
+                          itemDrawer(size.width>500 ? "Dashboard" : "", Icons.dashboard, _verificarLogin, tela, 0, _indiceAtual, [2], usuario.tipoUsuarioId),
+                          itemDrawer(size.width>500 ? "Minhas Incrições" : "", Icons.event_available, _verificarLogin, tela, 1, _indiceAtual, [2], usuario.tipoUsuarioId),
+                          itemDrawer(size.width>500 ? "Eventos" : "", Icons.event, _verificarLogin, tela, 2, _indiceAtual, [1, 2, 3], usuario.tipoUsuarioId),
+                          // ListTile(
+                          //   title: size.width>500 ?  Text("Dashboard") : null,
+                          //   leading: Icon(Icons.dashboard),
+                          //   onTap: () async {
+                          //     await _verificarLogin();
+                          //     tela(0);
+                          //   },
+                          //   tileColor: _indiceAtual == 0 ? Colors.white : Colors.transparent,
+                          // ),
+                          // ListTile(
+                          //   title: Text("Minhas Incrições"),
+                          //   leading: Icon(Icons.event_available),
+                          //   onTap: () async {
+                          //     await _verificarLogin();
+                          //     tela(1);
+                          //   },
+                          //   tileColor: _indiceAtual == 1 ? Colors.white : Colors.transparent,
+                          // ),
+                          // ListTile(
+                          //   title: Text("Eventos"),
+                          //   leading: Icon(Icons.event),
+                          //   onTap: () async {
+                          //     await _verificarLogin();
+                          //     tela(2);
+                          //   },
+                          //   tileColor: _indiceAtual == 2 ? Colors.white : Colors.transparent,
+                          // ),
                           usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
                             title: Text("Documentos"),
                             leading: Icon(Icons.article_rounded),
@@ -196,4 +210,16 @@ class _HomePageState extends State<HomePage> {
 
   }
 
+}
+
+Widget itemDrawer(title, icone, funcao, tela, index, indiceAtual, listPermissoes, tipousuario){
+  return listPermissoes.any((item) => item == tipousuario) ? ListTile(
+    title: Text(title),
+    leading: Icon(icone),
+    onTap: () async {
+      await funcao();
+      tela(index);
+    },
+    tileColor: indiceAtual == index ? Colors.white : Colors.transparent,
+  ) : SizedBox();
 }

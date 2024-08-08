@@ -1,10 +1,25 @@
+import 'dart:convert';
+import 'dart:html' as html;
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:brasil_datetime/brasil_datetime.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
+import 'package:if_travel/app/ui/web/widget/toastification.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:mime/mime.dart';
+import 'package:toastification/toastification.dart';
 
+import '../../../api.dart';
 import '../../../config/app_colors.dart';
+import '../../controller/authController.dart';
+import '../../data/model/evento.dart';
 import '../../data/model/eventoUsuario.dart';
 
 class EventoInscrito extends StatefulWidget {
@@ -15,18 +30,140 @@ class EventoInscrito extends StatefulWidget {
 }
 
 class _EventoInscritoState extends State<EventoInscrito> {
-  String id = Get.parameters['id'] ?? '';
-  EventoUsuario evento = Get.arguments[0];
-  List<String> documentos = [
-    'Copia do RG',
-    'Comprovante de Residencia',
-    'Cartão de vacinação',
-    'Autorização assinada'];
+  final AuthController controller = Get.find();
+  String idEvento = Get.parameters['id'] ?? '';
+  late EventoUsuario evento;
+  var token = '1';
+  bool loading = true;
+
+  final List<(XFile file, Uint8List bytes)> _list = [];
+
+  bool isHovering = false;
+
+  Future<void> setFiles(List<XFile> files) async {
+    for (final xFile in files) {
+      final bytes = await xFile.readAsBytes();
+      setState(() {
+        _list.add((xFile, bytes));
+        Map<String, String> requestHeaders = {
+          'Authorization': "Bearer " + controller.token.value
+        };
+        // API.requestWithFile('documentos/upload', xFile, requestHeaders);
+        print(xFile.name);
+      });
+    }
+  }
+
+  Future<void> pickFiles(id) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null) {
+      XFile file = result.xFiles[0];
+      String? extension = result.files.first.extension;
+      if(extension!.toLowerCase() == "pdf") {
+        var imagemNome = id.toString() + "_" +
+            Random().nextInt(1000000000).toString() + "_" +
+            DateTime.now().toString().replaceAll(':', '').replaceAll('.', '') +
+            "." + extension!;
+        await _upload(file, imagemNome, id);
+        await buscarEventoUsuario(idEvento);
+        ToastificationDefault(
+            context, "Sucesso", "Arquivo anexado com sucesso", Icons.done, AppColors.mainGreenColor);
+      }else {
+        ToastificationDefault(
+            context, "Tipo de arquivo inválido", "Aceito apenas tipo de arquivo .pdf", Icons.warning, AppColors.redColor);
+      }
+      // toastification.show(
+      //   context: context,
+      //   icon: Icon(Icons.warning),
+      //   type: ToastificationType.warning,
+      //   style: ToastificationStyle.minimal,
+      //   title: Text('Atenção estoque baixo'),
+      //   description: Text('O produto está com estoque baixo'),
+      //   alignment: Alignment.topRight,
+      //   autoCloseDuration: const Duration(seconds: 4),
+      //   borderRadius: BorderRadius.circular(4.0),
+      // );
+    }
+  }
+
+  _upload(file, fileName, id) async{
+    Map<String, String> requestHeaders = {
+      'id': id.toString(),
+      'Authorization': "Bearer " + controller.token.value
+    };
+    await API.requestWithFile('documentos/upload', file, requestHeaders, fileName);
+
+  }
+
+  // Future<void> dragFiles(DropDoneDetails details) async {
+  //   await setFiles(details.files);
+  // }
+
+  Future<void> deleteFiles(XFile fileToDelete) async {
+    setState(() {
+      _list.removeWhere((pair) {
+        final (file, _) = pair;
+
+        return file == fileToDelete;
+      });
+    });
+  }
+
+
+  void initState() {
+    super.initState();
+    // controller.obterToken();
+    if(Get.arguments != null) {
+      evento = Get.arguments['evento'];
+      loading = false;
+    }else{
+      buscarEventoUsuario(idEvento);
+      // Get.offAndToNamed(Routes.HOME);
+    }
+  }
+
+  buscarEventoUsuario(idEvento) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (controller.token.value.isNotEmpty) {
+        print(controller.token.value.isNotEmpty);
+        Map<String, String> requestHeaders = {
+          'eventoUsuarioId': idEvento.toString(),
+          'Authorization': "Bearer " + controller.token.value
+        };
+        var response = await API.requestGet(
+            'usuario/buscar-evento-usuario', requestHeaders);
+        if (response.statusCode == 200) {
+          //utf8.decode(response.body);
+          var teste = utf8.decode(response.bodyBytes);
+          EventoUsuario ev = EventoUsuario.fromJson(json.decode(teste));
+          setState(() {
+            evento = ev;
+            loading = false;
+          });
+        }
+      } else {
+        // Get.close(1);
+        // Get.offAndToNamed(Routes.LOGIN);
+        Get.offAndToNamed(Routes.LOGIN);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarComLogin(context),
-      body: Padding(
+      body: loading == true ? Center(
+        child: LoadingAnimationWidget.twoRotatingArc(
+          color: Colors.black,
+          size: 200,
+        ),
+      ) : Padding(
         padding: const EdgeInsets.only(top: 50, left: 50, right: 50),
         child: Container(
           child: Column(
@@ -52,14 +189,14 @@ class _EventoInscritoState extends State<EventoInscrito> {
               SizedBox(height: 10,),
               Row(children: [
                 Text(
-                  "Status: "+evento.status,
+                  "Status: "+evento.status.capitalizeFirst!,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Icon(Icons.access_time_rounded)
+                evento.status == 'pendente' ? Icon(Icons.access_time_rounded, color: AppColors.redColor,) : Icon(Icons.done, color: AppColors.mainGreenColor,)
               ],),
               SizedBox(height: 5,),
               Divider(),
@@ -86,8 +223,8 @@ class _EventoInscritoState extends State<EventoInscrito> {
                       child: Container(
                         padding: EdgeInsets.fromLTRB(16, 12, 0, 12),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
                               margin: EdgeInsets.fromLTRB(0, 0, 16, 0),
@@ -105,30 +242,93 @@ class _EventoInscritoState extends State<EventoInscrito> {
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+                              // margin: EdgeInsets.fromLTRB(0, 6.5, 0, 1.5),
                               child: Align(
                                 alignment: Alignment.topLeft,
                                 child: Container(
                                   child:
-                                  Text(
-                                    evento.documentos[index].documento.nome!,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                      height: 1.5,
-                                      color: Color(0xFF0D141C),
+                                  InkWell(onTap: null,
+                                    child: Text(
+                                      evento.documentos[index].documento.nome!,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16,
+                                        height: 1.5,
+                                        color: Color(0xFF0D141C),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            Spacer(),
+                            SizedBox(width: 20,),
+                                    evento.documentos[index].documento.modelo !=
+                                            null
+                                        ? ElevatedButton.icon(
+                                            onPressed: (){},
+                                            label: Text(
+                                              "Modelo",
+                                              style: TextStyle(fontSize: 12, color: AppColors.whiteColor),
+                                            ),
+                                            icon: Icon(
+                                              Icons.download,
+                                              size: 13,
+                                              color: AppColors.whiteColor,
+                                            ),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: EdgeInsets.all(9),
+                                            minimumSize: Size(0, 0),
+                                            elevation: 0,
+                                            backgroundColor: AppColors.mainBlueColor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(5), // <-- Radius
+                                            ),
+                                          ),
+                                          )
+                                        : SizedBox(),
+                                    Spacer(),
+                            evento.documentos[index].entregue ? Row(
+                              children: [
+                                IconButton(onPressed: () async {
+                                  Map<String, String> requestHeaders = {
+                                    'Authorization': "Bearer "+controller.token.value
+                                  };
+                                  print(requestHeaders.toString());
+                                  var response = await API.requestGet('documentos/download/'+evento.documentos[index].nomeAnexo, requestHeaders);
+                                  if(response.statusCode == 200) {
+                                    final Uint8List bytes = response.bodyBytes;
+                                    final blob = html.Blob([bytes]);
+                                    final url = html.Url.createObjectUrlFromBlob(blob);
+                                    final anchor = html.AnchorElement(href: url)
+                                      ..setAttribute("download", evento.documentos[index].nomeAnexo)
+                                      ..click();
+                                    html.Url.revokeObjectUrl(url);
+
+                                  }
+                                }, icon: Icon(Icons.download)),
+                                IconButton(onPressed: () async {
+                                  Map<String, String> requestHeaders = {
+                                    'Authorization': "Bearer "+controller.token.value,
+                                    'idDocumentoUsuario': evento.documentos[index].id.toString(),
+                                    'nomeAnexo': evento.documentos[index].nomeAnexo
+                                  };
+                                  print(requestHeaders.toString());
+                                  var response = await API.requestGet('documentos/delete', requestHeaders);
+                                  if(response.statusCode == 200) {
+                                    await buscarEventoUsuario(idEvento);
+                                    ToastificationDefault(context, "Deletado", "Arquivo Deletado com sucesso", Icons.warning, AppColors.orange);
+                                  }
+                                }, icon: Icon(Icons.delete), color: Colors.red,),
+
+                              ],
+                            ) : SizedBox(),
+                            SizedBox(width: 10),
                             ElevatedButton.icon(
                               icon: Icon(evento.documentos[index].entregue ? Icons.done : Icons.attach_file, color: AppColors.black,),
                               label: Text(evento.documentos[index].entregue ? "Anexado" : "Anexar", style: TextStyle(color: AppColors.black),),
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.all(17),
-                                minimumSize: Size(200, 40),
+                                minimumSize: Size(150, 40),
                                 elevation: 0,
                                 backgroundColor: AppColors.greyColor,
                                 shape: RoundedRectangleBorder(
@@ -136,7 +336,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
                                 ),
                               ),
                               onPressed: evento.documentos[index].entregue ? null : () {
-                                // Ação do botão de anexar
+                                pickFiles(evento.documentos[index].id);
                               },
 
                             ),

@@ -20,7 +20,6 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
   @override
   void initState() {
     super.initState();
-    usuarios = new Usuario().usuarios;
     _usuarioData = usuarios.map<DataGridRow>((e) => DataGridRow(cells: [
       DataGridCell<int>(columnName: 'id', value: e.id),
       DataGridCell<String>(columnName: 'nome', value: e.nome),

@@ -5,4 +5,5 @@ abstract class Routes{
   static const CADASTRO = '/cadastro';
   static const DETALHE_EVENTO = '/evento/detalhes/:id';
   static const EVENTO_INSCRITO = '/evento/inscricao/:id';
+  static const CADASTRAR_EVENTO = '/cadastrar_evento';
 }

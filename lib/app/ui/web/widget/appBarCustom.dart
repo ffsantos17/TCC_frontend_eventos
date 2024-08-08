@@ -46,7 +46,7 @@ PreferredSizeWidget appBarComLogin(context){
         child: ElevatedButton.icon(
             onPressed: (){
               var args = Get.arguments;
-              bool useRoute = args != null ? args[1] ?? true : true;
+              bool useRoute = args != null ? args['useRoute'] ?? true : true;
               print(useRoute.toString());
               if(useRoute == true || !Navigator.canPop(context)){
                 Get.offAndToNamed(Routes.HOME);

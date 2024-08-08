@@ -45,6 +45,10 @@ dependencies:
   brasil_fields: ^1.15.0
   flutter_email_sender: ^6.0.3
   card_loading: ^0.3.2
+  file_picker: ^8.0.5
+  image_picker: ^1.1.2
+  mime: ^1.0.5
+  toastification: ^2.1.0
 
 dev_dependencies:
   flutter_test:

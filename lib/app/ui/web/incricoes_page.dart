@@ -4,6 +4,7 @@ import 'package:brasil_datetime/brasil_datetime.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/app/data/model/eventoUsuario.dart';
+import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -37,7 +38,7 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
       DataGridCell<Widget>(columnName: 'acoes', value: Padding(
         padding: const EdgeInsets.all(3),
         child: Tooltip(message: 'Detalhes',
-          child: ElevatedButton(onPressed: (){Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.evento.id.toString()), arguments: [e, false]);},
+          child: ElevatedButton(onPressed: (){Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false});},
             child: Icon(Icons.remove_red_eye, color: AppColors.whiteColor,), style: ElevatedButton.styleFrom(
               padding: EdgeInsets.all(10),
               minimumSize: Size(0, 0),
@@ -63,6 +64,7 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
 
   @override
   Widget build(BuildContext context) {
+    final token = (context.findAncestorStateOfType<HomePageState>())?.token;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(10.0),

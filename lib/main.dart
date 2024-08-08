@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:if_travel/app/routes/app_pages.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:if_travel/config/app_colors.dart';
 
-void main() {
+import 'app/controller/authController.dart';
+import 'app/controller/usuarioController.dart';
+
+Future<void> main() async {
   usePathUrlStrategy();
+  await Get.putAsync<AuthController>(() async {
+    final controller = AuthController();
+    await controller.obterToken();
+    return controller;
+  });
   runApp(const MyApp());
 }
 

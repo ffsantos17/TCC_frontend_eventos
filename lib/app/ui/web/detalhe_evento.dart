@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../api.dart';
 import '../../../config/app_colors.dart';
+import '../../controller/authController.dart';
 import '../../data/model/evento.dart';
 import '../../data/model/eventoUsuario.dart';
 import '../../data/model/usuario.dart';
@@ -38,6 +39,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   var args = Get.arguments;
   late bool useRoute = false;
   String id = Get.parameters['id'] ?? '';
+  final AuthController controller = Get.find();
 
   _obterToken() async{
     final SharedPreferences prefs = await _prefs;
@@ -58,10 +60,10 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
         response = json.decode(response.body);
         setState(() {
           usuario = Usuario.fromJson(response);
-          eventosUsuario = usuario.eventos!.map((e) {
-            return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          }).toList();
-          eventoIds = eventosUsuario.map((e) => e.eventoId).toSet();
+          // eventosUsuario = usuario.eventos!.map((e) {
+          //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
+          // }).toList();
+          eventoIds = usuario.eventos!.map((e) => e.eventoId).toSet();
           inscrito = eventoIds.contains(evento.id!);
           loading = false;
         });
@@ -107,6 +109,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       setState(() {
         evento = ev;
       });
+    }else{
+      Get.offAndToNamed(Routes.HOME);
     }
   }
 
@@ -124,7 +128,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
     var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
     if(response.statusCode == 200) {
       //response = json.decode(response.body);
-      Get.offAndToNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', response.body), arguments: [response.body, true]);
+      await controller.obterToken();
+      Get.offAndToNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', response.body));
     }else{
       return alertErro(context, "Erro", "Falha ao realizar inscrição");
     }
@@ -133,8 +138,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   _iniciar() async {
     if(args != null){
       setState(() {
-      evento = args[0];
-      useRoute = args[1];
+      evento = args['evento'];
+      useRoute = args['useRoute'];
       });
     }else{
       await _buscarEvento(id);

@@ -23,9 +23,7 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    eventosUsuario = widget.usuario.eventos!.map((e) {
-      return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-    }).toList();
+    eventosUsuario = widget.usuario.eventos!;
     eventosPendentes = eventosUsuario.where((evento) => evento.status == 'pendente').toList();
     eventosProximos = eventosUsuario.where((evento) => evento.evento.data!.isAfter(DateTime.now()) && evento.evento.data!.isBefore(DateTime.now().add(Duration(days: 30)))).toList();
   }

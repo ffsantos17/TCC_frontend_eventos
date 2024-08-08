@@ -8,10 +8,12 @@ import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/eventoUsuario.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/app/ui/web/widget/evento_card.dart';
+import 'package:if_travel/config/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../../api.dart';
+import '../../controller/authController.dart';
 import '../../data/model/usuario.dart';
 import '../../routes/app_routes.dart';
 
@@ -24,6 +26,7 @@ class ListaEventos extends StatefulWidget {
 }
 
 class _ListaEventosState extends State<ListaEventos> {
+  final AuthController controller = Get.find();
   List<Evento> eventosDB = <Evento>[];
   List<Evento> eventos = <Evento>[];
   late GridDataSource eventoDataSource;
@@ -100,6 +103,19 @@ class _ListaEventosState extends State<ListaEventos> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Eventos", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),),
+            SizedBox(height: 20,),
+            controller.usuario!.tipoUsuarioId == 3 ? ElevatedButton(onPressed: (){
+              Get.toNamed(Routes.CADASTRAR_EVENTO, arguments: {'useRoute': false});
+            }, child: Text("Criar Evento", style: TextStyle(color: AppColors.whiteColor, fontWeight: FontWeight.bold),),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(15),
+                minimumSize: Size(0, 0),
+                elevation: 0,
+                backgroundColor: AppColors.mainBlueColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5), // <-- Radius
+                ),
+              ),) : SizedBox(),
             SizedBox(height: 20,),
             TextFormField(
               controller: buscaController,

@@ -7,6 +7,7 @@ import 'package:if_travel/app/ui/web/widget/alerta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config/app_colors.dart';
 
+import '../../controller/authController.dart';
 import '../../data/model/evento.dart';
 
 
@@ -31,7 +32,7 @@ class _TelaLoginState extends State<TelaLogin> {
         MediaQuery.of(context).size.width <= 1200;
   }
   bool ocultaSenha = true;
-
+  final AuthController controller = Get.find();
   late TextEditingController emailController = TextEditingController();
   late TextEditingController senhaController = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -156,34 +157,37 @@ class _TelaLoginState extends State<TelaLogin> {
                         borderRadius: BorderRadius.circular(16.0),
                         color: AppColors.whiteColor,
                       ),
-                      child: TextFormField(
-                        validator: (value) {
-                          if(value!.isEmpty){
-                            return 'Campo Obrigatório';
-                          }else{
-                            return null;
-                          }
-                        },
-                        controller: senhaController,
-                        obscureText: ocultaSenha,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            suffixIcon: IconButton(
-                              onPressed: (){
-                                setState(() {
-                                  ocultaSenha = !ocultaSenha;
-                                });
-                              },
-                              icon: Icon( ocultaSenha == true ? Icons.visibility_off : Icons.visibility),
-                            ),
-                            prefixIcon: Icon(Icons.lock),
-                            prefixIconColor: AppColors.mainBlueColor,
-                            hintText: 'Senha',
-                            hintStyle: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.mainBlueColor.withOpacity(0.5),
-                              fontSize: 13.0,
-                            )
+                      child: AutofillGroup(
+                        child: TextFormField(
+                          autofillHints: [AutofillHints.password],
+                          validator: (value) {
+                            if(value!.isEmpty){
+                              return 'Campo Obrigatório';
+                            }else{
+                              return null;
+                            }
+                          },
+                          controller: senhaController,
+                          obscureText: ocultaSenha,
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              suffixIcon: IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    ocultaSenha = !ocultaSenha;
+                                  });
+                                },
+                                icon: Icon( ocultaSenha == true ? Icons.visibility_off : Icons.visibility),
+                              ),
+                              prefixIcon: Icon(Icons.lock),
+                              prefixIconColor: AppColors.mainBlueColor,
+                              hintText: 'Senha',
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.mainBlueColor.withOpacity(0.5),
+                                fontSize: 13.0,
+                              )
+                          ),
                         ),
                       ),
                     ),
@@ -212,13 +216,17 @@ class _TelaLoginState extends State<TelaLogin> {
                             "email": emailController.text,
                             "senha": senhaController.text
                           };
+                          print(body.toString());
                           var token;
                           var response = await API.requestPost('auth/login', body, null);
+                          print(response.statusCode);
                           if(response.body == "Usuario ou senha invalidos"){
                             alertErro(context, "Erro","Usuario ou senha inválidos");
                           }else{
                             token = response.body;
                             await prefs.setString('if_travel_jwt_token', token);
+                            await controller.obterToken();
+                            await controller.obterUsuario();
                             if(args != null){
                               Get.offAndToNamed(Routes.DETALHE_EVENTO.replaceAll(':id', evento.id.toString()), arguments: [evento, true]);
                             }else {
@@ -262,31 +270,34 @@ Widget input(controller, icon, largura, hint, inputFormatter, digitsOnly){
       borderRadius: BorderRadius.circular(16.0),
       color: AppColors.whiteColor,
     ),
-    child: TextFormField(
-      validator: (value) {
-        if(value!.isEmpty){
-          return 'Campo Obrigatório';
-        }else{
-          return null;
-        }
-      },
-      controller: controller,
-      decoration: InputDecoration(
-          border: InputBorder.none,
-          prefixIcon: Icon(icon),
-          prefixIconColor: AppColors.mainBlueColor,
-          // contentPadding: const EdgeInsets.only(top: 12.0),
-          hintText: hint,
-          hintStyle: TextStyle(
-            fontWeight: FontWeight.w400,
-            color: AppColors.mainBlueColor.withOpacity(0.5),
-            fontSize: 13.0,
-          )
+    child: AutofillGroup(
+      child: TextFormField(
+        autofillHints: [AutofillHints.username],
+        validator: (value) {
+          if(value!.isEmpty){
+            return 'Campo Obrigatório';
+          }else{
+            return null;
+          }
+        },
+        controller: controller,
+        decoration: InputDecoration(
+            border: InputBorder.none,
+            prefixIcon: Icon(icon),
+            prefixIconColor: AppColors.mainBlueColor,
+            // contentPadding: const EdgeInsets.only(top: 12.0),
+            hintText: hint,
+            hintStyle: TextStyle(
+              fontWeight: FontWeight.w400,
+              color: AppColors.mainBlueColor.withOpacity(0.5),
+              fontSize: 13.0,
+            )
+        ),
+        inputFormatters: [
+          if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
+          if (inputFormatter != null) inputFormatter,
+        ],
       ),
-      inputFormatters: [
-        if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
-        if (inputFormatter != null) inputFormatter,
-      ],
     ),
   );
 }
