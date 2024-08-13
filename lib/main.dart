@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:if_travel/app/routes/app_pages.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:if_travel/config/app_colors.dart';
 
 import 'app/controller/authController.dart';
-import 'app/controller/usuarioController.dart';
 
 Future<void> main() async {
   usePathUrlStrategy();
@@ -30,10 +30,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.mainBlueColor),
         useMaterial3: true,
+        dialogTheme: const DialogTheme(
+            surfaceTintColor: Colors.transparent,
+        ),
       ),
       debugShowCheckedModeBanner: false,
       getPages: AppPages.routes,
       initialRoute: Routes.INICIO,
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('pt', 'BR'),
+        const Locale('en', 'US'),
+      ],
     );
   }
 }

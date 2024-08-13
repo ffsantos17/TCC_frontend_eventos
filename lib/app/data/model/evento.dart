@@ -4,6 +4,7 @@ class Evento{
   final int? id;
   final String? nome;
   final DateTime? data;
+  final DateTime? dataFim;
   final String? imagem;
   final int? idUsuarioCriacao;
   final DateTime? dataCriacao;
@@ -16,7 +17,7 @@ class Evento{
   final int? vagasDisponiveis;
   final List<DocumentoEvento> documentos;
 
-  Evento({this.id, this.nome, this.data, this.imagem, this.dataCriacao, this.idUsuarioCriacao, this.link, this.linkEPublico, this.vagas, this.descricao, this.visitas, this.local, this.vagasDisponiveis,required this.documentos});
+  Evento({this.id, this.nome, this.data, this.dataFim, this.imagem, this.dataCriacao, this.idUsuarioCriacao, this.link, this.linkEPublico, this.vagas, this.descricao, this.visitas, this.local, this.vagasDisponiveis,required this.documentos});
 
 
 
@@ -27,6 +28,7 @@ class Evento{
     return Evento(id: json['id'],
         nome : json['nome'],
         data : DateTime.parse(json['data']),
+        dataFim : DateTime.parse(json['dataFim']),
         imagem : json['imagem'],
         idUsuarioCriacao : json['idUsuarioCriacao'],
         dataCriacao : DateTime.parse(json['dataCriacao']),

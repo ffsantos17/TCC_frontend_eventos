@@ -3,8 +3,9 @@ class Documento{
   final String? nome;
   final bool? possuiModelo;
   final String? modelo;
+  bool? associado;
 
-  Documento({this.id, this.nome, this.possuiModelo, this.modelo});
+  Documento({this.id, this.nome, this.possuiModelo, this.modelo, this.associado});
 
   List<Documento> get documentos{
     return [
@@ -27,5 +28,6 @@ class Documento{
       : id = json['id'],
         nome = json['nome'],
         possuiModelo = json['possuiModelo'],
-        modelo = json['modelo'];
+        modelo = json['modelo'],
+        associado = false;
 }

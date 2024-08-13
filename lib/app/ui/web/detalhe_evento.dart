@@ -260,7 +260,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                   ),
                                 ),
                                 Text(
-                                  evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
+                                  evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!+" a "+evento.dataFim!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 15,
