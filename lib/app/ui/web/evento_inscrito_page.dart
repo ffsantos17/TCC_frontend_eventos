@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:math';
 import 'dart:typed_data';
-
+import 'package:if_travel/app/ui/web/widget/abrirPDF.dart';
+import 'package:path/path.dart' as p;
 import 'package:brasil_datetime/brasil_datetime.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,8 @@ import '../../../config/app_colors.dart';
 import '../../controller/authController.dart';
 import '../../data/model/evento.dart';
 import '../../data/model/eventoUsuario.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'dart:ui_web' as ui;
 
 class EventoInscrito extends StatefulWidget {
   const EventoInscrito({super.key});
@@ -71,6 +74,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
             "." + extension!;
         await _upload(file, imagemNome, id);
         await buscarEventoUsuario(idEvento);
+        await controller.obterUsuario();
         ToastificationDefault(
             context, "Sucesso", "Arquivo anexado com sucesso", Icons.done, AppColors.mainGreenColor);
       }else {
@@ -96,7 +100,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
       'id': id.toString(),
       'Authorization': "Bearer " + controller.token.value
     };
-    await API.requestWithFile('documentos/upload', file, requestHeaders, fileName);
+    await API.requestWithFile('documentos/upload_documento', file, requestHeaders, fileName);
 
   }
 
@@ -179,7 +183,17 @@ class _EventoInscritoState extends State<EventoInscrito> {
               ),
               SizedBox(height: 10,),
               Text(
-                evento.evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
+                evento.evento.data!.semanaDiaMesAnoExt().toString().capitalizeFirst!+" a "+evento.evento.dataFim!.semanaDiaMesAnoExt().toString().capitalizeFirst!,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+
+              SizedBox(height: 10,),
+              Text(
+                "Local: "+evento.evento.local!,
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.black,
@@ -262,10 +276,45 @@ class _EventoInscritoState extends State<EventoInscrito> {
                               ),
                             ),
                             SizedBox(width: 20,),
-                                    evento.documentos[index].documento.modelo !=
-                                            null
+                                    evento.documentos[index].documento.possuiModelo == true
                                         ? ElevatedButton.icon(
-                                            onPressed: (){},
+                                            onPressed: () async {
+                                              final extension = p.extension(evento.documentos[index].documento.modelo!);
+                                              Map<String, String> requestHeaders = {
+                                                'Authorization': "Bearer " +
+                                                    controller.token.value
+                                              };
+                                              var response = await API.requestGet(
+                                                  'documentos/download/modelos/' +
+                                                      evento.documentos[index].documento.modelo!,
+                                                  requestHeaders);
+                                              print(evento.documentos[index].documento.modelo!);
+                                              print(response.statusCode);
+                                              if (response.statusCode == 200) {
+                                                final Uint8List bytes = response.bodyBytes;
+                                                final blob = html.Blob(
+                                                    [bytes], 'application/pdf');
+                                                final url = html.Url
+                                                    .createObjectUrlFromBlob(blob);
+
+                                                final html.IFrameElement iframe = html
+                                                    .IFrameElement()
+                                                  ..src = url
+                                                  ..style.border = 'none';
+                                                final String viewType = 'iframeElement_${DateTime
+                                                    .now()
+                                                    .millisecondsSinceEpoch}';
+                                                ui.platformViewRegistry.registerViewFactory(
+                                                  viewType,
+                                                      (int viewId) => iframe,
+                                                );
+                                                AbrirPDF(context, viewType, extension, evento.documentos[index].documento.modelo!, url);
+                                              } else {
+                                                print(
+                                                    'Erro ao fazer a requisição: ${response
+                                                        .statusCode}');
+                                              }
+                                            },
                                             label: Text(
                                               "Modelo",
                                               style: TextStyle(fontSize: 12, color: AppColors.whiteColor),
@@ -290,34 +339,93 @@ class _EventoInscritoState extends State<EventoInscrito> {
                             evento.documentos[index].entregue ? Row(
                               children: [
                                 IconButton(onPressed: () async {
+                                  final extension = p.extension(evento.documentos[index].nomeAnexo);
                                   Map<String, String> requestHeaders = {
-                                    'Authorization': "Bearer "+controller.token.value
+                                    'Authorization': "Bearer " +
+                                        controller.token.value
                                   };
-                                  print(requestHeaders.toString());
-                                  var response = await API.requestGet('documentos/download/'+evento.documentos[index].nomeAnexo, requestHeaders);
-                                  if(response.statusCode == 200) {
+                                  var response = await API.requestGet(
+                                      'documentos/download/documentos_usuario/' +
+                                          evento.documentos[index].nomeAnexo,
+                                      requestHeaders);
+                                  print(evento.documentos[index].nomeAnexo);
+                                  print(response.statusCode);
+                                  if (response.statusCode == 200) {
                                     final Uint8List bytes = response.bodyBytes;
-                                    final blob = html.Blob([bytes]);
-                                    final url = html.Url.createObjectUrlFromBlob(blob);
-                                    final anchor = html.AnchorElement(href: url)
-                                      ..setAttribute("download", evento.documentos[index].nomeAnexo)
-                                      ..click();
-                                    html.Url.revokeObjectUrl(url);
+                                    final blob = html.Blob(
+                                        [bytes], 'application/pdf');
+                                    final url = html.Url
+                                        .createObjectUrlFromBlob(blob);
 
+                                    final html.IFrameElement iframe = html
+                                        .IFrameElement()
+                                      ..src = url
+                                      ..style.border = 'none';
+                                    final String viewType = 'iframeElement_${DateTime
+                                        .now()
+                                        .millisecondsSinceEpoch}';
+                                    ui.platformViewRegistry.registerViewFactory(
+                                      viewType,
+                                          (int viewId) => iframe,
+                                    );
+                                    AbrirPDF(context, viewType, extension, evento.documentos[index].nomeAnexo, url);
+                                  } else {
+                                    print(
+                                        'Erro ao fazer a requisição: ${response
+                                            .statusCode}');
                                   }
+                                  // Map<String, String> requestHeaders = {
+                                  //   'Authorization': "Bearer "+controller.token.value
+                                  // };
+                                  // print(requestHeaders.toString());
+                                  // var response = await API.requestGet('documentos/download/'+evento.documentos[index].nomeAnexo, requestHeaders);
+                                  // if(response.statusCode == 200) {
+                                  //   final Uint8List bytes = response.bodyBytes;
+                                  //   final blob = html.Blob([bytes]);
+                                  //   final url = html.Url.createObjectUrlFromBlob(blob);
+                                  //   final anchor = html.AnchorElement(href: url)
+                                  //     ..setAttribute("download", evento.documentos[index].nomeAnexo)
+                                  //     ..click();
+                                  //   html.Url.revokeObjectUrl(url);
+                                  //
+                                  // }
                                 }, icon: Icon(Icons.download)),
                                 IconButton(onPressed: () async {
-                                  Map<String, String> requestHeaders = {
-                                    'Authorization': "Bearer "+controller.token.value,
-                                    'idDocumentoUsuario': evento.documentos[index].id.toString(),
-                                    'nomeAnexo': evento.documentos[index].nomeAnexo
-                                  };
-                                  print(requestHeaders.toString());
-                                  var response = await API.requestGet('documentos/delete', requestHeaders);
-                                  if(response.statusCode == 200) {
-                                    await buscarEventoUsuario(idEvento);
-                                    ToastificationDefault(context, "Deletado", "Arquivo Deletado com sucesso", Icons.warning, AppColors.orange);
-                                  }
+                                  showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) => AlertDialog(
+                                      title: Text('Confirmar'),
+                                      content: Text('Deseja apagar esse anexo?'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+                                            Map<String, String> requestHeaders = {
+                                              'Authorization': "Bearer "+controller.token.value,
+                                              'idDocumentoUsuario': evento.documentos[index].id.toString(),
+                                              'nomeAnexo': evento.documentos[index].nomeAnexo
+                                            };
+                                            print(requestHeaders.toString());
+                                            var response = await API.requestGet('documentos/delete', requestHeaders);
+                                            if(response.statusCode == 200) {
+                                              await buscarEventoUsuario(idEvento);
+                                              await controller.obterUsuario();
+                                              ToastificationDefault(context, "Deletado", "Arquivo Deletado com sucesso", Icons.warning, AppColors.orange);
+                                            }
+                                          },
+                                          child: const Text('Sim'),
+                                        ),
+
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, 'Não'),
+                                          child: const Text('Não'),
+                                        ),
+                                      ],
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                                    ),
+                                  );
+
                                 }, icon: Icon(Icons.delete), color: Colors.red,),
 
                               ],

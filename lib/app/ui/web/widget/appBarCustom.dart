@@ -51,7 +51,7 @@ PreferredSizeWidget appBarComLogin(context){
               if(useRoute == true || !Navigator.canPop(context)){
                 Get.offAndToNamed(Routes.HOME);
               }else{
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               }},
             icon: Icon(Icons.arrow_back, color: Colors.white,),
             label: Text("Voltar", style: TextStyle(color: Colors.white),),

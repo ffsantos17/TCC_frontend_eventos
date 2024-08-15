@@ -120,7 +120,7 @@ class _InicialPageState extends State<InicialPage> {
                           child: SizedBox(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(30.0),
-                              child: Image.network(topEvento.imagem!,
+                              child: Image.network(base_url+"documentos/img/imagens/"+topEvento.imagem!,
                                 fit: BoxFit.cover,
                                 opacity: AlwaysStoppedAnimation(.5),
                                 height: screenSize.height * 0.55,

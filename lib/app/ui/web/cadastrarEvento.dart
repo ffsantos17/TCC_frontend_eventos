@@ -1,4 +1,10 @@
 import 'dart:convert';
+import 'dart:html' as html;
+import 'dart:html';
+import 'dart:typed_data';
+import 'package:if_travel/app/routes/app_routes.dart';
+import 'package:if_travel/app/ui/web/widget/abrirPDF.dart';
+import 'package:path/path.dart' as p;
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,7 +22,12 @@ import 'package:if_travel/config/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:uuid/uuid.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'dart:ui_web' as ui;
+
 
 
 class CadastrarEvento extends StatefulWidget {
@@ -27,6 +38,7 @@ class CadastrarEvento extends StatefulWidget {
 }
 
 class _CadastrarEventoState extends State<CadastrarEvento> {
+  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   final AuthController controller = Get.find();
   DateTime? dataInicio = null;
   DateTime? dataFim = null;
@@ -34,11 +46,14 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
   List<Documento> documentosAssociados = [];
   XFile? imagem = null;
   bool anexado = false;
-
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
   bool linkPublico = true;
   late TextEditingController nomeController = TextEditingController();
   late TextEditingController dataInicioController = TextEditingController();
   late TextEditingController dataFimController = TextEditingController();
+  late TextEditingController localController = TextEditingController();
+  late TextEditingController vagasController = TextEditingController();
+  late TextEditingController descricaoController = TextEditingController();
 
   void _onSelectDate(DateRangePickerSelectionChangedArgs args) {
     setState(() {
@@ -66,22 +81,77 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
     }
   }
 
-  _criarDocumento(nome, pModelo, modelo) async {
-    var body = {
-      "nome": nome,
-      "possuiModelo": pModelo.toString(),
-      "modelo": modelo
-    };
+  _criarDocumento(nome, pModelo, documento) async {
+    final extension = p.extension(documento.name);
+    var uuid = Uuid();
+    String nomeDoc = uuid.v4()+"_"+DateTime.now().toString().replaceAll(':', '').replaceAll('.', '')+extension.toLowerCase();
     Map<String, String> requestHeaders = {
-      'Authorization': "Bearer "+controller.token.value,
+      'nomeDoc': nome,
+      'pModelo': pModelo.toString(),
+      'Authorization': "Bearer " + controller.token.value
     };
-    var response = await API.requestPost('documentos/criar', body, requestHeaders);
+    var response = await API.requestWithFile('documentos/criar', documento, requestHeaders, nomeDoc);
+    // var body = {
+    //   "nome": nome,
+    //   "possuiModelo": pModelo.toString(),
+    //   "modelo": documento.name
+    // };
+    // Map<String, String> requestHeaders = {
+    //   'Authorization': "Bearer "+controller.token.value,
+    // };
+    // var response = await API.requestPost('documentos/criar', body, requestHeaders);
     if(response.statusCode == 200) {
       await _buscarDocumentos();
     }else{
       ToastificationDefault(
           context, "Erro", "Não foi possivel criar o documento, tente novamente", Icons.warning, AppColors.redColor);
     }
+  }
+
+  _criarEvento(nome, dataIni, dataFim, vagas, local, descricao, ePublico, documentos, imagem, usuarioId) async{
+    var uuid = Uuid();
+    List<int> idsDocs = [];
+    documentos.forEach((doc) {
+      idsDocs.add(doc.id);
+    });
+    final extension = p.extension(imagem.name);
+
+    String nomeImg = uuid.v4()+"_"+DateTime.now().toString().replaceAll(':', '').replaceAll('.', '')+extension.toLowerCase();
+
+    Map<String, dynamic> jsonMap = {
+      "vagas" : vagas,
+      "linkEPublico" : ePublico.toString(),
+      "idUsuarioCriacao" : usuarioId,
+      "data" : dataIni,
+      "dataFim" : dataFim,
+      "nome" : nome,
+      "local" : local,
+      "imagem": nomeImg
+    };
+    String jsonString = json.encode(jsonMap);
+    Map<String, String> requestHeaders = {
+      'json': jsonString,
+      'documentos': idsDocs.toString(),
+      'Authorization': "Bearer " + controller.token.value
+    };
+    var response = await API.requestWithFile('eventos/cadastrar', imagem, requestHeaders, nomeImg);
+    // var body = {
+    //   "nome": nome,
+    //   "possuiModelo": pModelo.toString(),
+    //   "modelo": documento.name
+    // };
+    // Map<String, String> requestHeaders = {
+    //   'Authorization': "Bearer "+controller.token.value,
+    // };
+    // var response = await API.requestPost('documentos/criar', body, requestHeaders);
+    print(response.statusCode);
+    if(response.statusCode == 200) {
+      Get.offAndToNamed(Routes.HOME);
+    }else{
+      ToastificationDefault(
+          context, "Erro", "Não foi possivel criar o evento, tente novamente", Icons.warning, AppColors.redColor);
+    }
+
   }
 
   @override
@@ -114,6 +184,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                 SizedBox(
                   width: size.width > 700 ? 500 : size.width*.85,
                   child: TextFormField(
+                    controller: nomeController,
                     decoration: new InputDecoration(
                         fillColor: AppColors.greyColor,
                         filled: true,
@@ -130,6 +201,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                 SizedBox(
                   width: size.width > 700 ? 500 : size.width*.85,
                   child: TextFormField(
+                    controller: localController,
                     decoration: new InputDecoration(
                         fillColor: AppColors.greyColor,
                         filled: true,
@@ -146,6 +218,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                 SizedBox(
                   width: size.width > 700 ? 500 : size.width*.85,
                   child: TextFormField(
+                    controller: vagasController,
                     decoration: new InputDecoration(
                         fillColor: AppColors.greyColor,
                         filled: true,
@@ -210,6 +283,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                   width: size.width > 700 ? 500 : size.width*.85,
                   height: 150,
                   child: TextFormField(
+                    controller: descricaoController,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     expands: true,
@@ -286,7 +360,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                 SizedBox(
                   width: size.width > 700 ? 500 : size.width*.85,
                   height: 200,
-                  child:  imagem != null ? 
+                  child:  imagem != null ?
                       Stack(children: [
                         Positioned.fill(child: Image.network(imagem!.path)),
                         Align(
@@ -347,7 +421,17 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                   child: ElevatedButton(
                     child: Text("Salvar", style: TextStyle(fontSize: 15, color: AppColors.whiteColor)),
                     onPressed: (){
-
+                      _criarEvento(nomeController.text,
+                        formatter.format(dataInicio!).toString(),
+                        formatter.format(dataFim!).toString(),
+                        vagasController.text,
+                        localController.text,
+                        descricaoController.text,
+                        linkPublico.toString(),
+                        documentosAssociados,
+                        imagem,
+                        controller.usuario!.id
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.all(15),
@@ -405,7 +489,58 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                       itemCount: documentos.length,
                       itemBuilder: (context, index) {
                         return CheckboxListTile(
-                          title: Text(documentos[index].nome!),
+                          title: Row(
+                            children: [
+                              Text(documentos[index].nome!),
+                              Spacer(),
+                              documentos[index].possuiModelo! ? IconButton(onPressed: () async {
+                                final extension = p.extension(documentos[index].modelo!);
+                                  Map<String, String> requestHeaders = {
+                                    'Authorization': "Bearer " +
+                                        controller.token.value
+                                  };
+                                  var response = await API.requestGet(
+                                      'documentos/download/modelos/' +
+                                          documentos[index].modelo!,
+                                      requestHeaders);
+                                  if (response.statusCode == 200) {
+                                    final Uint8List bytes = response.bodyBytes;
+                                    final blob = html.Blob(
+                                        [bytes], 'application/pdf');
+                                    final url = html.Url
+                                        .createObjectUrlFromBlob(blob);
+
+                                    final IFrameElement iframe = html
+                                        .IFrameElement()
+                                      ..src = url
+                                      ..style.border = 'none';
+                                    final String viewType = 'iframeElement_${DateTime
+                                        .now()
+                                        .millisecondsSinceEpoch}';
+                                    ui.platformViewRegistry.registerViewFactory(
+                                      viewType,
+                                          (int viewId) => iframe,
+                                    );
+                                    AbrirPDF(context, viewType, extension, documentos[index].modelo!, url);
+                                  } else {
+                                    print(
+                                        'Erro ao fazer a requisição: ${response
+                                            .statusCode}');
+                                  }
+                                // }
+                                  // if(response.statusCode == 200) {
+                                  //   final Uint8List bytes = response.bodyBytes;
+                                  //   final blob = html.Blob([bytes]);
+                                  //   final url = html.Url.createObjectUrlFromBlob(blob);
+                                  //   final anchor = html.AnchorElement(href: url)
+                                  //     ..setAttribute("download", documentos[index].modelo!)
+                                  //     ..click();
+                                  //   html.Url.revokeObjectUrl(url);
+                                  //
+                                  // }
+                              }, icon: Icon(Icons.remove_red_eye),) : SizedBox()
+                            ],
+                          ),
                           value: documentos[index].associado,
                           onChanged: (newValue) {
                             setState(() {
@@ -582,7 +717,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
             ),
             TextButton(
               onPressed: () async {
-                  await _criarDocumento(nomeDocController.text, possuiModelo, documento != null ? documento!.name : "");
+                  await _criarDocumento(nomeDocController.text, possuiModelo, documento != null ? documento : null);
                   Navigator.pop(context);
                   AssociarDocumentos(context);
               },
@@ -592,6 +727,8 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
         );},
     );
   }
+
+
 }
 
 Future<String?> Calendario(context ,function, dataInicio, dataFim){

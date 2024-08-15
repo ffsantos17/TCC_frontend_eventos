@@ -189,7 +189,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30.0),
                         child: Image.network(
-                          evento.imagem!,
+                          base_url+"documentos/img/imagens/"+evento.imagem!,
                           fit: BoxFit.cover,
                           opacity: AlwaysStoppedAnimation(.5),
                           height: screenSize.height * 0.45,

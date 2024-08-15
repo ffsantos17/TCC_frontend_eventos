@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
 import 'package:if_travel/app/ui/web/widget/evento_card.dart';
+import 'package:if_travel/app/ui/web/widget/evento_pendente_card.dart';
 import 'package:if_travel/config/app_colors.dart';
 
 import '../../data/model/eventoUsuario.dart';
@@ -25,7 +26,7 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     eventosUsuario = widget.usuario.eventos!;
     eventosPendentes = eventosUsuario.where((evento) => evento.status == 'pendente').toList();
-    eventosProximos = eventosUsuario.where((evento) => evento.evento.data!.isAfter(DateTime.now()) && evento.evento.data!.isBefore(DateTime.now().add(Duration(days: 30)))).toList();
+    eventosProximos = eventosUsuario.where((evento) => evento.evento.data!.isAfter(DateTime.now()) && evento.evento.data!.isBefore(DateTime.now().add(Duration(days: 30))) && evento.status == 'aprovado').toList();
   }
 
   @override
@@ -55,7 +56,7 @@ class _DashboardState extends State<Dashboard> {
                     Expanded(child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Proximos eventos", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text("Eventos nos próximos 30 dias", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                         SizedBox(height: 10,),
                         Flexible(
                               child: ListView.builder(
@@ -78,7 +79,7 @@ class _DashboardState extends State<Dashboard> {
                                 //controller: _scrollController,
                                 scrollDirection: Axis.vertical,
                                 itemCount: eventosPendentes.length,
-                                itemBuilder: (contex, index) => EventoCard(evento: eventosPendentes[index].evento),
+                                itemBuilder: (contex, index) => EventoPendenteCard(evento: eventosPendentes[index]),
                               ),
                             ),
                       ],

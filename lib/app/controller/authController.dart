@@ -23,6 +23,7 @@ class AuthController extends GetxController {
   }
 
   obterUsuario() async {
+    print("obtendo usuario");
     var storedToken = token.value;
     if(storedToken != null) {
       Map<String, String> requestHeaders = {

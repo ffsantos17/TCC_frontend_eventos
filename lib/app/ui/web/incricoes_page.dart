@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:brasil_datetime/brasil_datetime.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:if_travel/app/controller/authController.dart';
 import 'package:if_travel/app/data/model/eventoUsuario.dart';
 import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
@@ -24,21 +25,33 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
   late GridDataSource eventoDataSource;
   List<DataGridRow> _eventoData = [];
   List<ColumnGrid> colunas = [];
+  final AuthController controller = Get.find();
+
+  _att(){
+    print("att");
+    setState(() {
+      eventos = controller.usuario!.eventos!;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     eventos = widget.eventos;
     _eventoData = eventos.map<DataGridRow>((e) => DataGridRow(cells: [
-      DataGridCell<String>(columnName: 'id', value: e.evento.id.toString()),
       DataGridCell<String>(columnName: 'nome', value: e.evento.nome),
-      DataGridCell<String>(columnName: 'data', value: e.evento.data!.diaMesAno().toString()),
-      DataGridCell<String>(columnName: 'publico', value: e.evento.linkEPublico == true ? "Sim" : "Não"),
-      DataGridCell<String>(columnName: 'link', value: e.evento.link),
+      DataGridCell<String>(columnName: 'data', value: e.evento.data!.diaMesAno().toString()+" - "+e.evento.dataFim!.diaMesAno().toString()),
+      DataGridCell<String>(columnName: 'status', value: e.status),
+      DataGridCell<String>(columnName: 'docEntregues', value: e.documentos.where((evento) => evento.entregue == true).length.toString()+" / "+e.documentos.length.toString()),
       DataGridCell<Widget>(columnName: 'acoes', value: Padding(
         padding: const EdgeInsets.all(3),
         child: Tooltip(message: 'Detalhes',
-          child: ElevatedButton(onPressed: (){Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false});},
+          child: ElevatedButton(onPressed: () async {
+            final result = await Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false});
+            if (result == true) {
+              _att();
+            }
+            },
             child: Icon(Icons.remove_red_eye, color: AppColors.whiteColor,), style: ElevatedButton.styleFrom(
               padding: EdgeInsets.all(10),
               minimumSize: Size(0, 0),
@@ -51,11 +64,10 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
       ),),
     ])).toList();
     colunas = [
-      ColumnGrid("id", "Id", Alignment.center, 8),
       ColumnGrid("nome", "Nome", Alignment.center, 8),
       ColumnGrid("data", "Data", Alignment.center, 8),
-      ColumnGrid("publico", "É publico?", Alignment.center, 8),
-      ColumnGrid("link", "Link", Alignment.center, 8),
+      ColumnGrid("status", "Status", Alignment.center, 8),
+      ColumnGrid("docEntregues", "Documentos Entregues", Alignment.center, 8),
       ColumnGrid("acoes", "Ações", Alignment.center, 8),
     ];
     eventoDataSource = GridDataSource(data: _eventoData);
@@ -82,6 +94,7 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
                 columns: getColumns(colunas)
               ),
             ),
+            ElevatedButton(onPressed: (){_att();}, child: Icon(Icons.downloading))
           ],
         ),
       ),

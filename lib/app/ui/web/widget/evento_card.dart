@@ -160,7 +160,7 @@ class _EventoCardState extends State<EventoCard> {
             Expanded(child: Center(
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(30.0),
-                  child: Image.network(widget.evento.imagem!, height: 150, width: 200,)),
+                  child: Image.network(base_url+"documentos/img/imagens/"+widget.evento.imagem!, height: 150, width: 200,)),
             )),
           ],
         ),

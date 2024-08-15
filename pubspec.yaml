@@ -57,6 +57,10 @@ dependencies:
   toggle_switch: ^2.3.0
   dotted_border: ^2.1.0
   flutter_dropzone: ^4.0.2
+  uuid: ^4.4.2
+  syncfusion_flutter_pdfviewer: ^24.2.9
+  syncfusion_flutter_gauges: ^24.2.9
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:
