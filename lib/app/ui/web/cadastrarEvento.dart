@@ -82,7 +82,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
   }
 
   _criarDocumento(nome, pModelo, documento) async {
-    final extension = p.extension(documento.name);
+    final extension = documento != null ? p.extension(documento.name) : "";
     var uuid = Uuid();
     String nomeDoc = uuid.v4()+"_"+DateTime.now().toString().replaceAll(':', '').replaceAll('.', '')+extension.toLowerCase();
     Map<String, String> requestHeaders = {

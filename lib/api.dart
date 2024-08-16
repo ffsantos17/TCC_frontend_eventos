@@ -19,11 +19,11 @@ class API {
     return response;
   }
 
-  static Future requestWithFile(String endpoint, XFile file, Map<String, String> headers, String filename) async {
+  static Future requestWithFile(endpoint, file, headers, filename) async {
     var url = base_url + endpoint ;
     var request = http.MultipartRequest('POST', Uri.parse(url));
     // request.files.add(await http.MultipartFile.fromBytes('imagens', await file.readAsBytes(),filename: ""));
-    request.files.add(await http.MultipartFile.fromBytes('file', await file.readAsBytes(), filename: filename));
+    file != null ? request.files.add(await http.MultipartFile.fromBytes('file', await file.readAsBytes(), filename: filename)) : null;
     request.headers.addAll(headers);
 
     var response = await request.send();

@@ -28,16 +28,13 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
   final AuthController controller = Get.find();
 
   _att(){
-    print("att");
     setState(() {
       eventos = controller.usuario!.eventos!;
+      _montarTabela();
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    eventos = widget.eventos;
+  _montarTabela(){
     _eventoData = eventos.map<DataGridRow>((e) => DataGridRow(cells: [
       DataGridCell<String>(columnName: 'nome', value: e.evento.nome),
       DataGridCell<String>(columnName: 'data', value: e.evento.data!.diaMesAno().toString()+" - "+e.evento.dataFim!.diaMesAno().toString()),
@@ -51,7 +48,7 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
             if (result == true) {
               _att();
             }
-            },
+          },
             child: Icon(Icons.remove_red_eye, color: AppColors.whiteColor,), style: ElevatedButton.styleFrom(
               padding: EdgeInsets.all(10),
               minimumSize: Size(0, 0),
@@ -59,7 +56,7 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5), // <-- Radius
               ),
-          ),),
+            ),),
         ),
       ),),
     ])).toList();
@@ -71,6 +68,13 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
       ColumnGrid("acoes", "Ações", Alignment.center, 8),
     ];
     eventoDataSource = GridDataSource(data: _eventoData);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    eventos = widget.eventos;
+    _montarTabela();
   }
 
 
@@ -94,7 +98,6 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
                 columns: getColumns(colunas)
               ),
             ),
-            ElevatedButton(onPressed: (){_att();}, child: Icon(Icons.downloading))
           ],
         ),
       ),

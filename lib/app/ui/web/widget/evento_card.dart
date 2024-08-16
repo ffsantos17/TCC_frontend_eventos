@@ -104,8 +104,9 @@ class _EventoCardState extends State<EventoCard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _obterToken();
-    _buscarUsuario();
+    // _obterToken();
+    // _buscarUsuario();
+    loading = false;
   }
 
   @override

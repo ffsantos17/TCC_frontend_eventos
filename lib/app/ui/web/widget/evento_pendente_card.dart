@@ -112,11 +112,12 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _obterToken();
-    _buscarUsuario();
+    // _obterToken();
+    // _buscarUsuario();
     totalDocumentos = widget.evento.documentos.length;
     documentosPendentes = widget.evento.documentos.where((evento) => evento.entregue == false).length;
     documentosEntregues = widget.evento.documentos.where((evento) => evento.entregue == true).length;
+    loading = false;
   }
 
   @override
