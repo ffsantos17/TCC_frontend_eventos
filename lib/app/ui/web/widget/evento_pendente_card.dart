@@ -9,6 +9,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/app/controller/authController.dart';
 import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
+import 'package:if_travel/app/ui/web/widget/criarDocumento.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -27,7 +28,7 @@ class EventoPendenteCard extends StatefulWidget {
 class _EventoPendenteCardState extends State<EventoPendenteCard> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final AuthController controller = Get.find();
-  late Usuario usuario = Usuario();
+  late Usuario usuario = controller.usuario ?? Usuario();
   List<EventoUsuario> eventosUsuario = [];
   Set<int> eventoIds = Set();
   late String storedToken = '';
@@ -182,7 +183,6 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
                 ),)
               ],
             )),
-            Spacer(),
             Expanded(child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Column(

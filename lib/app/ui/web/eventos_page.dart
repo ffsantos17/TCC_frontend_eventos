@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/app/data/model/evento.dart';
@@ -135,9 +136,9 @@ class _ListaEventosState extends State<ListaEventos> {
               ),
             ),
             SizedBox(height: 20,),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.75,
-              width: MediaQuery.of(context).size.width * 0.90,
+            Expanded(
+              // height: MediaQuery.of(context).size.height * 0.75,
+              // width: MediaQuery.of(context).size.width * 0.90,
               child: ListView.builder(
                 //controller: _scrollController,
                 scrollDirection: Axis.vertical,

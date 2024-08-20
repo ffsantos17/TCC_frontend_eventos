@@ -5,6 +5,7 @@ import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:if_travel/app/controller/authController.dart';
 import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
 import 'package:if_travel/config/app_colors.dart';
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../api.dart';
 import '../../../data/model/eventoUsuario.dart';
 import '../../../routes/app_routes.dart';
+
 class EventoCard extends StatefulWidget {
   Evento evento;
   EventoCard({super.key, required this.evento});
@@ -23,7 +25,8 @@ class EventoCard extends StatefulWidget {
 
 class _EventoCardState extends State<EventoCard> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late Usuario usuario = Usuario();
+  final AuthController controller = Get.find();
+  late Usuario usuario = controller.usuario ?? Usuario();
   List<EventoUsuario> eventosUsuario = [];
   Set<int> eventoIds = Set();
   late String storedToken = '';

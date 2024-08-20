@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/api.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
+import 'package:if_travel/app/ui/web/colaboracoes_page.dart';
 import 'package:if_travel/app/ui/web/documentos_page.dart';
+import 'package:if_travel/app/ui/web/evento_colaborador_page.dart';
 import 'package:if_travel/app/ui/web/eventos_page.dart';
 import 'package:if_travel/app/ui/web/incricoes_page.dart';
 import 'package:if_travel/app/ui/web/usuarios_page.dart';
@@ -83,7 +85,7 @@ class HomePageState extends State<HomePage> {
       ListaInscricoes(eventos: usuario.eventos!),
       ListaEventos(usuario: usuario,),
       ListaDocumentos(),
-      ListaUsuarios()
+      ListaColaboracoes()
     ];
     setState(() {
       _tela=_telas[indice];
@@ -114,7 +116,7 @@ class HomePageState extends State<HomePage> {
                   children: [
                     DrawerHeader(
                       child: Container(
-                        child: Row(
+                        child: size.width>500 ? Row(
                           children: [
                             Image.network(
                               "https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png",
@@ -124,7 +126,7 @@ class HomePageState extends State<HomePage> {
                             SizedBox(height: 10,),
                             Flexible(child: Text(controller.usuario!.nome!)),
                           ],
-                        ),
+                        ) : SizedBox(),
                       ),
                     ),
                     Expanded(
@@ -135,6 +137,8 @@ class HomePageState extends State<HomePage> {
                           itemDrawer(size.width>500 ? "Dashboard" : "", Icons.dashboard, _verificarLogin, tela, 0, _indiceAtual, [2], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Minhas Incrições" : "", Icons.event_available, _verificarLogin, tela, 1, _indiceAtual, [2], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Eventos" : "", Icons.event, _verificarLogin, tela, 2, _indiceAtual, [1, 2, 3], usuario.tipoUsuarioId),
+                          itemDrawer(size.width>500 ? "Meus Eventos" : "", Icons.event_available, _verificarLogin, tela, 4, _indiceAtual, [3], usuario.tipoUsuarioId),
+                          itemDrawer(size.width>500 ? "Documentos" : "", Icons.article_rounded, _verificarLogin, tela, 3, _indiceAtual, [3], usuario.tipoUsuarioId),
                           // ListTile(
                           //   title: size.width>500 ?  Text("Dashboard") : null,
                           //   leading: Icon(Icons.dashboard),
@@ -162,31 +166,31 @@ class HomePageState extends State<HomePage> {
                           //   },
                           //   tileColor: _indiceAtual == 2 ? Colors.white : Colors.transparent,
                           // ),
-                          usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
-                            title: Text("Documentos"),
-                            leading: Icon(Icons.article_rounded),
-                            onTap: () async {
-                              await _verificarLogin();
-                              tela(3);
-                            },
-                            tileColor: _indiceAtual == 3 ? Colors.white : Colors.transparent,
-                          ),
-                          usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
-                            title: Text("Usuários"),
-                            leading: Icon(Icons.group),
-                            onTap: () async {
-                              await _verificarLogin();
-                              tela(4);
-                            },
-                            tileColor: _indiceAtual == 4 ? Colors.white : Colors.transparent,
-                          ),
+                          // usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
+                          //   title: Text("Documentos"),
+                          //   leading: Icon(Icons.article_rounded),
+                          //   onTap: () async {
+                          //     await _verificarLogin();
+                          //     tela(3);
+                          //   },
+                          //   tileColor: _indiceAtual == 3 ? Colors.white : Colors.transparent,
+                          // ),
+                          // usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
+                          //   title: Text("Usuários"),
+                          //   leading: Icon(Icons.group),
+                          //   onTap: () async {
+                          //     await _verificarLogin();
+                          //     tela(4);
+                          //   },
+                          //   tileColor: _indiceAtual == 4 ? Colors.white : Colors.transparent,
+                          // ),
                         ],
                       ),
                     ),
                     Spacer(), // Ocupa o espaço restante
                     Divider(),
                     ListTile(
-                      title: Text("Sair"),
+                      title: Text(size.width>500 ? "Sair" : ""),
                       leading: Icon(Icons.exit_to_app),
                       onTap: () async {
                         final SharedPreferences prefs = await _prefs;

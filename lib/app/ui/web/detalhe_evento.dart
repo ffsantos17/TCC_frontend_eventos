@@ -28,7 +28,8 @@ class DetalhesEvento extends StatefulWidget {
 
 class _DetalhesEventoState extends State<DetalhesEvento> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late Usuario usuario = Usuario();
+  final AuthController controller = Get.find();
+  late Usuario usuario = controller.usuario ?? Usuario();
   late Evento evento;
   List<EventoUsuario> eventosUsuario = [];
   Set<int> eventoIds = Set();
@@ -39,7 +40,6 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   var args = Get.arguments;
   late bool useRoute = false;
   String id = Get.parameters['id'] ?? '';
-  final AuthController controller = Get.find();
 
   _obterToken() async{
     final SharedPreferences prefs = await _prefs;
@@ -63,7 +63,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
           // eventosUsuario = usuario.eventos!.map((e) {
           //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
           // }).toList();
-          eventoIds = usuario.eventos!.map((e) => e.eventoId).toSet();
+          eventoIds = usuario.eventos!.map((e) => e.evento.id!).toSet();
           inscrito = eventoIds.contains(evento.id!);
           loading = false;
         });
@@ -108,6 +108,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       Evento ev = Evento.fromJson(json.decode(teste));
       setState(() {
         evento = ev;
+        eventoIds = controller.usuario!.eventos!.map((e) => e.eventoId).toSet();
       });
     }else{
       Get.offAndToNamed(Routes.HOME);
@@ -145,8 +146,11 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       await _buscarEvento(id);
     }
     vagasDisponiveis = await _buscarVagas(evento.id);
-    await _buscarUsuario();
+    // await _buscarUsuario();
     await _inserirVisitas(id);
+    setState(() {
+      loading=false;
+    });
   }
 
 
@@ -436,7 +440,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                 ),
               ),
 
-              Container(
+              usuario.tipoUsuarioId == 2 ? Container(
                 margin: EdgeInsets.only(bottom: 30, top: 20),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -457,7 +461,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
-              ),
+              ) : SizedBox(),
               // Container(
               //   margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
               //   child: Align(

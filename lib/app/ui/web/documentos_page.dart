@@ -47,10 +47,10 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
 
   _montarTabela(){
     _documentoData = documentos.map<DataGridRow>((d) => DataGridRow(cells: [
-      DataGridCell<String>(columnName: 'id', value: d.id.toString()),
+      // DataGridCell<String>(columnName: 'id', value: d.id.toString()),
       DataGridCell<String>(columnName: 'nome', value: d.nome),
       DataGridCell<String>(columnName: 'pModelo', value: d.possuiModelo == true ? "Sim" : "Não"),
-      DataGridCell<String>(columnName: 'modelo', value: d.modelo != null ? p.extension(d.modelo!) : ""),
+      DataGridCell<String>(columnName: 'tipoArquivo', value: d.modelo != null ? p.extension(d.modelo!) : ""),
       DataGridCell<Widget>(columnName: 'acoes', value: Padding(
         padding: const EdgeInsets.all(3),
         child: Row(
@@ -91,10 +91,10 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
       )),
     ])).toList();
     colunas = [
-      ColumnGrid("id", "Id", Alignment.center, 8),
+      // ColumnGrid("id", "Id", Alignment.center, 8),
       ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("pModelo", "Tipo Arquivo", Alignment.center, 8),
-      ColumnGrid("modelo", "Modelo", Alignment.center, 8),
+      ColumnGrid("pModelo", "Possui modelo?", Alignment.center, 8),
+      ColumnGrid("tipoArquivo", "Tipo Anexo", Alignment.center, 8),
       ColumnGrid("acoes", "Ações", Alignment.center, 8),
     ];
     documentoDataSource = GridDataSource(data: _documentoData);

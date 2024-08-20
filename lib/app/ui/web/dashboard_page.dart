@@ -51,7 +51,8 @@ class _DashboardState extends State<Dashboard> {
             SizedBox(height: MediaQuery.of(context).size.height * 0.04,),
             Expanded(
               child: IntrinsicHeight(
-                child: Row(
+                child: Flex(
+                  direction: MediaQuery.of(context).size.width > 700 ? Axis.horizontal : Axis.vertical,
                   children: [
                     Expanded(child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
