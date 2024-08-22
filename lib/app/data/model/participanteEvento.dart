@@ -9,6 +9,7 @@ class ParticipanteEvento{
   final int status_id;
   final String status;
   final int documentosEntregues;
+  final int documentosSemVisualizar;
   final int totalDocumentos;
   final Usuario usuario;
 
@@ -21,6 +22,7 @@ class ParticipanteEvento{
     required this.status_id,
     required this.status,
     required this.documentosEntregues,
+    required this.documentosSemVisualizar,
     required this.totalDocumentos,
     required this.usuario
   });
@@ -34,6 +36,7 @@ class ParticipanteEvento{
         status_id = json['status_id'],
         status = json['status'],
         documentosEntregues = json['documentosEntregues'],
+        documentosSemVisualizar = json['documentosSemVisualizar'],
         totalDocumentos = json['totalDocumentos'],
         usuario = Usuario.fromJson(json['usuario']);
 }

@@ -149,6 +149,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
     // await _buscarUsuario();
     await _inserirVisitas(id);
     setState(() {
+      eventoIds = controller.usuario!.eventos!.map((e) => e.evento.id!).toSet();
+      inscrito = eventoIds.contains(evento.id!);
       loading=false;
     });
   }

@@ -9,7 +9,7 @@ import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
+import 'package:badges/badges.dart' as badges;
 import '../../routes/app_routes.dart';
 
 class ListaInscricoes extends StatefulWidget {
@@ -43,20 +43,30 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
       DataGridCell<Widget>(columnName: 'acoes', value: Padding(
         padding: const EdgeInsets.all(3),
         child: Tooltip(message: 'Detalhes',
-          child: ElevatedButton(onPressed: () async {
-            final result = await Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false});
-            if (result == true) {
-              _att();
-            }
-          },
-            child: Icon(Icons.remove_red_eye, color: AppColors.whiteColor,), style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.all(10),
-              minimumSize: Size(0, 0),
-              backgroundColor: AppColors.mainBlueColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5), // <-- Radius
-              ),
-            ),),
+          child: badges.Badge(
+            badgeContent: Text(e.documentos
+                .expand((documento) => documento.alertas)
+                .where((alerta) => !alerta.lido)
+                .length.toString(), style: TextStyle(color: AppColors.whiteColor),),
+            showBadge: e.documentos
+                .expand((documento) => documento.alertas)
+                .where((alerta) => !alerta.lido).isNotEmpty,
+              position: badges.BadgePosition.topEnd(end: -10, top: -10),
+            child: ElevatedButton(onPressed: () async {
+              final result = await Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false});
+              if (result == true) {
+                _att();
+              }
+            },
+              child: Icon(Icons.remove_red_eye, color: AppColors.whiteColor,), style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.all(10),
+                minimumSize: Size(0, 0),
+                backgroundColor: AppColors.mainBlueColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5), // <-- Radius
+                ),
+              ),),
+          ),
         ),
       ),),
     ])).toList();

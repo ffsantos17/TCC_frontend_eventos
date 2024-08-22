@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:if_travel/app/ui/web/widget/abrirPDF.dart';
+import 'package:if_travel/app/ui/web/widget/exibirAlertas.dart';
 import 'package:path/path.dart' as p;
 import 'package:brasil_datetime/brasil_datetime.dart';
 import 'package:file_picker/file_picker.dart';
@@ -14,9 +15,7 @@ import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
 import 'package:if_travel/app/ui/web/widget/toastification.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:mime/mime.dart';
-import 'package:toastification/toastification.dart';
-
+import 'package:badges/badges.dart' as badges;
 import '../../../api.dart';
 import '../../../config/app_colors.dart';
 import '../../controller/authController.dart';
@@ -336,22 +335,32 @@ class _EventoInscritoState extends State<EventoInscrito> {
                                           )
                                         : SizedBox(),
                                     Spacer(),
-                            evento.documentos[index].entregue ? Row(
-                              children: [
-                                Tooltip(
-                                  message: "Visualizar anexo",
-                                  child: IconButton(onPressed: () async {
-                                    final extension = p.extension(evento.documentos[index].nomeAnexo);
-                                    Map<String, String> requestHeaders = {
-                                      'Authorization': "Bearer " +
-                                          controller.token.value
-                                    };
-                                    var response = await API.requestGet(
-                                        'documentos/download/documentos_usuario/' +
-                                            evento.documentos[index].nomeAnexo,
-                                        requestHeaders);
-                                    print(evento.documentos[index].nomeAnexo);
-                                    print(response.statusCode);
+                                    evento.documentos[index].entregue ? Row(
+                                    children: [
+                                      evento.documentos[index].alertas.isNotEmpty ? Tooltip(message: "Alertas", child:
+                                      badges.Badge(
+                                          position: badges.BadgePosition.bottomStart(start: 20, bottom: 20),
+                                          badgeContent: Text(evento.documentos[index].alertas.where((a) => a.lido == false).length.toString(), style: TextStyle(color: AppColors.whiteColor),),
+                                          showBadge: evento.documentos[index].alertas.where((a) => a.lido == false).isNotEmpty,
+                                          child: IconButton(onPressed: () async {
+                                            await ExibirAlertas(context, evento.documentos[index].alertas).then((value) => buscarEventoUsuario(evento.id));
+                                          },
+                                              icon: Icon(Icons.notification_important, color: AppColors.yellow,)))
+                                      ,) : SizedBox(),
+                                    Tooltip(
+                                      message: "Visualizar anexo",
+                                      child: IconButton(onPressed: () async {
+                                        final extension = p.extension(evento.documentos[index].nomeAnexo);
+                                        Map<String, String> requestHeaders = {
+                                          'Authorization': "Bearer " +
+                                              controller.token.value
+                                        };
+                                        var response = await API.requestGet(
+                                            'documentos/download/documentos_usuario/' +
+                                                evento.documentos[index].nomeAnexo,
+                                            requestHeaders);
+                                        print(evento.documentos[index].nomeAnexo);
+                                        print(response.statusCode);
                                     if (response.statusCode == 200) {
                                       final Uint8List bytes = response.bodyBytes;
                                       final blob = html.Blob(

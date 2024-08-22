@@ -13,6 +13,7 @@ import 'package:if_travel/app/ui/web/widget/criarDocumento.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:badges/badges.dart' as badge;
 
 import '../../../../api.dart';
 import '../../../data/model/eventoUsuario.dart';
@@ -145,7 +146,15 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
                   ],
                 ),
                 SizedBox(height: 8,),
-                ElevatedButton(
+                badge.Badge(
+                  badgeContent: Text(widget.evento.documentos
+                      .expand((documento) => documento.alertas)
+                      .where((alerta) => !alerta.lido)
+                      .length.toString(), style: TextStyle(color: AppColors.whiteColor),),
+                  showBadge: widget.evento.documentos
+                      .expand((documento) => documento.alertas)
+                      .where((alerta) => !alerta.lido).isNotEmpty,
+                  child: ElevatedButton(
                   onPressed: usuario.id == null ? () {Get.toNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
                     // Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false})
                     final result = await Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', widget.evento.id.toString()), arguments: {'evento': widget.evento, 'useRoute': true});
@@ -180,7 +189,8 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5), // <-- Radius
                   ),
-                ),)
+                ),),),
+
               ],
             )),
             Expanded(child: Padding(

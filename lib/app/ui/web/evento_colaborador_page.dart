@@ -15,13 +15,14 @@ import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/alerta.dart';
 import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
+import 'package:if_travel/app/ui/web/widget/cardDocumentos.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/app/ui/web/widget/toastification.dart';
 import 'package:if_travel/app/utils/consultaDocEMontaPDF.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:badges/badges.dart' as badge;
+import 'package:badges/badges.dart' as badges;
 import 'package:toastification/toastification.dart';
 
 class EventosColaborador extends StatefulWidget {
@@ -43,19 +44,100 @@ class _EventosColaboradorState extends State<EventosColaborador> {
   List<ParticipanteEvento> colaboradores = [];
   List<DocumentoUsuario> documentos = [];
   TextEditingController buscaController = new TextEditingController();
+  bool eventosPendentes = false;
+  bool eventosConfirmados = false;
+  bool eventosCancelados = false;
+  bool eventosComAlerta = false;
 
-  _search(String busca){
+  // _search(String busca){
+  //   setState(() {
+  //     participantes = [];
+  //     busca = busca.toLowerCase();
+  //     participantesDB.forEach((element) {
+  //       if(element.usuario.nome!.toLowerCase().contains(busca) || element.usuario.email!.toLowerCase().contains(busca) || element.usuario.matricula!.toString().toLowerCase().contains(busca)){
+  //         participantes.add(element);
+  //
+  //       }
+  //     });
+  //   });
+  // }
+
+  _search(String busca) {
     setState(() {
+      // Verifica se algum checkbox está marcado
+      bool isAnyCheckboxActive = eventosPendentes || eventosConfirmados || eventosCancelados || eventosComAlerta;
+
+      // Se nenhum checkbox estiver marcado e a busca estiver vazia, exibe a lista completa
+      if (!isAnyCheckboxActive && busca.isEmpty) {
+        participantes = List.from(participantesDB);
+        return;
+      }
+
+      participantes = participantesDB.where((element) {
+        bool matchesSearch = true;
+        bool matchesStatus = true;
+        bool matchesAlert = true;
+
+        // Filtragem por texto
+        busca = busca.toLowerCase();
+        if (busca.isNotEmpty) {
+          matchesSearch = element.usuario.nome!.toLowerCase().contains(busca) ||
+              element.usuario.email!.toLowerCase().contains(busca) ||
+              element.usuario.matricula!.toString().toLowerCase().contains(busca);
+        }
+
+        // Filtragem por status
+        if (eventosPendentes) {
+          matchesStatus = element.status_id == 5;
+        } else if (eventosConfirmados) {
+          matchesStatus = element.status_id == 4;
+        } else if (eventosCancelados) {
+          matchesStatus = element.status_id == 6;
+        }
+
+        // Filtragem por alertas
+        if (eventosComAlerta) {
+          matchesAlert = element.documentosSemVisualizar > 0;
+        }
+
+        // Retornar true se todos os critérios forem atendidos
+        return matchesSearch && matchesStatus && matchesAlert;
+      }).toList();
+    });
+  }
+
+
+
+  filter(value, filtro){
+    setState(() {
+      value = !value;
       participantes = [];
-      busca = busca.toLowerCase();
+      if(filtro == 'aprovado'){
       participantesDB.forEach((element) {
-        if(element.usuario.nome!.toLowerCase().contains(busca) || element.usuario.email!.toLowerCase().contains(busca) || element.usuario.matricula!.toString().toLowerCase().contains(busca)){
+        if(element.status_id == 4){
           participantes.add(element);
-          
         }
       });
+      }else if(filtro == 'pendente'){
+        participantesDB.forEach((element) {
+          if(element.status_id == 5){
+            participantes.add(element);
+          }
+        });
+      }else if(filtro == 'cancelado'){
+        participantesDB.forEach((element) {
+          if(element.status_id == 6){
+            participantes.add(element);
+          }
+        });
+      }else if(filtro == 'comAlertas'){
+        participantesDB.forEach((element) {
+          if(element.status_id == 6){
+            participantes.add(element);
+          }
+        });
+      }
     });
-
   }
 
   buscarEvento(idEvento) async {
@@ -179,6 +261,8 @@ class _EventosColaboradorState extends State<EventosColaborador> {
       }
     });
   }
+
+
 
   _att(){
     setState(() {
@@ -314,36 +398,94 @@ class _EventosColaboradorState extends State<EventosColaborador> {
                 ),
                 Divider(color: AppColors.black,),
                 SizedBox(height: 5,),
-                Row(
-                  children: [
-                    search == true && size.width < 700 ? SizedBox() : Text("Participantes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
-                    Padding(padding: EdgeInsets.only(left: 0), child: IconButton(icon: Icon(Icons.search, size: 20,), onPressed: (){setState(() {
-                      search=!search;
-                    });},),),
-                    search ? Container(
-                      height: 35,
-                      width: 300,
-                      child: TextFormField(
-                        controller: buscaController,
-                        onChanged: _search,
-                        style: TextStyle(fontSize: 14),
-                        decoration: InputDecoration(
-                          hintStyle: TextStyle(fontSize: 14),
-                          hintText: "Buscar",
-                          contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0)),
-                          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.clear, size: 15,),
-                            onPressed: () {
-                              buscaController.text = '';
-                              _search(buscaController.text);
-                            },
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      search == true && size.width < 700 ? SizedBox() : Text("Participantes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),),
+                      Padding(padding: EdgeInsets.only(left: 0), child: IconButton(icon: Icon(Icons.filter_alt_rounded, size: 20,), onPressed: (){setState(() {
+                        search=!search;
+                      });},),),
+                      search ? Row(
+                        children: [
+                          Container(
+                            height: 35,
+                            width: 300,
+                            child: TextFormField(
+                              controller: buscaController,
+                              onChanged: _search,
+                              style: TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(fontSize: 14),
+                                hintText: "Buscar nome, matricula ou email",
+                                contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0)),
+                                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.clear, size: 15,),
+                                  onPressed: () {
+                                    buscaController.text = '';
+                                    _search(buscaController.text);
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ) : SizedBox()
-                  ],
+                          VerticalDivider(),
+                          Row(
+                            children: [
+                              Text("Aprovados"),
+                              Checkbox(
+                                checkColor: Colors.white,
+                                value: eventosConfirmados,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    eventosConfirmados = value!;
+                                    _search(buscaController.text);
+                                  });
+                                },
+                              ),
+                              VerticalDivider(),
+                              Text("Pendentes"),
+                              Checkbox(
+                                checkColor: Colors.white,
+                                value: eventosPendentes,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    eventosPendentes = value!;
+                                    _search(buscaController.text);
+                                  });
+                                },
+                              ),
+                              VerticalDivider(),
+                              Text("Cancelados"),
+                              Checkbox(
+                                checkColor: Colors.white,
+                                value: eventosCancelados,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    eventosCancelados = value!;
+                                    _search(buscaController.text);
+                                  });
+                                },
+                              ),
+                              VerticalDivider(),
+                              Text("Com Alerta"),
+                              Checkbox(
+                                checkColor: Colors.white,
+                                value: eventosComAlerta,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    eventosComAlerta = value!;
+                                    _search(buscaController.text);
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      ) : SizedBox()
+                    ],
+                  ),
                 ),
                 SizedBox(height: 15,),
                 Expanded(
@@ -554,120 +696,158 @@ class _EventosColaboradorState extends State<EventosColaborador> {
           Tooltip(message: "Cancelar Inscrição",child: IconButton(onPressed: participante.status_id == 6 ? null : () {
             alertConfirmAlterarStatusInscricao(context, alterarStatus, participante.id, 6);
           }, icon: Icon(Icons.close, color: participante.status_id == 6 ? null : AppColors.redColor))),
-          Tooltip(message: "Visualizar Documentos",child: IconButton(onPressed: () async {
-            CardDocumentos(context, participante.id);
-            }, icon: const Icon(Icons.remove_red_eye, color: AppColors.mainBlueColor))),
+          Tooltip(message: "Visualizar Documentos",child: badges.Badge(
+            badgeContent: Text(participante.documentosSemVisualizar.toString(), style: TextStyle(color: AppColors.whiteColor),),
+            showBadge: participante.documentosSemVisualizar>0,
+            position: badges.BadgePosition.bottomStart(start: 25, bottom: 15),
+            child: IconButton(onPressed: () async {
+              await CardDocumentos(context, participante.id).then((value) => buscarParticipantes(idEvento));
+              }, icon: const Icon(Icons.remove_red_eye, color: AppColors.mainBlueColor)),
+          )),
         ],
       ),
     );
   }
 
-  Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {
-    bool loading = true;
-    List<DocumentoUsuario> documentos = [];
+  // Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {
+  //   bool loading = true;
+  //   List<DocumentoUsuario> documentos = [];
+  //
+  //   // Função para buscar os documentos do usuário
+  //   Future<void> buscarDocumentosUsuario() async {
+  //     if (controller.token.value.isNotEmpty) {
+  //       Map<String, String> requestHeaders = {
+  //         'eventoUsuarioId': idEventoUsuario.toString(),
+  //         'Authorization': "Bearer " + controller.token.value
+  //       };
+  //       var response = await API.requestGet(
+  //           'usuario/buscar-documentos-usuario', requestHeaders);
+  //       if (response.statusCode == 200) {
+  //         Iterable lista = json.decode(response.body);
+  //         setState(() {
+  //           documentos = lista.map((model) => DocumentoUsuario.fromJson(model)).toList();
+  //           loading = false;
+  //         });
+  //       } else {
+  //         Get.offAndToNamed(Routes.LOGIN);
+  //       }
+  //     } else {
+  //       Get.offAndToNamed(Routes.LOGIN);
+  //     }
+  //   }
+  //
+  //   Future<void> visualizarDocumento(int idDocumentoUsuario) async {
+  //     if (controller.token.value.isNotEmpty) {
+  //       Map<String, String> requestHeaders = {
+  //         'idDocumentoUsuario': idDocumentoUsuario.toString(),
+  //         'Authorization': "Bearer " + controller.token.value
+  //       };
+  //       var response = await API.requestGet(
+  //           'documentos/visualizar_documento', requestHeaders);
+  //       if (response.statusCode == 200) {
+  //         await buscarDocumentosUsuario();
+  //       }
+  //     }
+  //   }
+  //
+  //   // Executa a busca dos documentos antes de abrir o Dialog
+  //   await buscarDocumentosUsuario();
+  //
+  //   return showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.all(Radius.circular(8.0))),
+  //         child: LayoutBuilder(
+  //           builder: (context, constraints) {
+  //             // Calcular a largura máxima necessária
+  //             double maxWidth = documentos.fold(0.0, (previousValue, doc) {
+  //               final textWidth = (TextPainter(
+  //                 text: TextSpan(text: doc.documento.nome, style: TextStyle(fontSize: 16)),
+  //                 maxLines: 1,
+  //                 textDirection: TextDirection.ltr,
+  //               )..layout()).size.width;
+  //
+  //               return textWidth > previousValue ? textWidth : previousValue;
+  //             });
+  //
+  //             // Adicionar padding e limitar a largura ao tamanho da tela
+  //             double dialogWidth = maxWidth + 300;
+  //             dialogWidth = dialogWidth.clamp(200.0, constraints.maxWidth * 0.9);
+  //
+  //             return Container(
+  //               width: dialogWidth,
+  //               padding: EdgeInsets.all(16.0),
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   // Linha para o botão de fechar
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text("Documentos", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+  //                       IconButton(
+  //                         icon: Icon(Icons.close),
+  //                         onPressed: () {
+  //                           Navigator.of(context).pop();
+  //                         },
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   // Indicador de carregamento ou lista de documentos
+  //                   loading
+  //                       ? CircularProgressIndicator()
+  //                       : documentos.isNotEmpty
+  //                       ? ListView.builder(
+  //                     shrinkWrap: true,
+  //                     itemCount: documentos.length,
+  //                     itemBuilder: (context, index) {
+  //                       return ListTile(
+  //                         title: Text(documentos[index].documento.nome!,style:  TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+  //                         subtitle: documentos[index].entregue == true ?  Text("Status: Entregue") : Text("Status: Pendente"),
+  //                         trailing: documentos[index].entregue == true ? Row(
+  //                           mainAxisSize: MainAxisSize.min,
+  //                           children: [
+  //                             IconButton(
+  //                               onPressed: () {
+  //                                 AddAlerta(context, documentos[index]);
+  //                               },
+  //                               icon: Tooltip(message: "Adicionar Alerta", child: Icon(Icons.notification_add),),
+  //                             ),
+  //                             badges.Badge(
+  //                               showBadge: !documentos[index].visualizado,
+  //                               position: badges.BadgePosition.bottomStart(start: 28, bottom: 25),
+  //                               child: IconButton(
+  //                                 onPressed: () async {
+  //                                   await visualizarDocumento(documentos[index].id);
+  //                                   MontaPDF.ConsultaEMontaPDFAnexo(context, documentos[index], controller.token.value);
+  //                                 },
+  //                                 icon: Tooltip(message: "Visualizar Anexo", child: Icon(Icons.remove_red_eye),),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ) : SizedBox(),
+  //                       );
+  //                     },
+  //                   )
+  //                       : Text("Nenhum documento encontrado."),
+  //                 ],
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
-    // Função para buscar os documentos do usuário
-    Future<void> buscarDocumentosUsuario() async {
-      if (controller.token.value.isNotEmpty) {
-        Map<String, String> requestHeaders = {
-          'eventoUsuarioId': idEventoUsuario.toString(),
-          'Authorization': "Bearer " + controller.token.value
-        };
-        var response = await API.requestGet(
-            'usuario/buscar-documentos-usuario', requestHeaders);
-        if (response.statusCode == 200) {
-          Iterable lista = json.decode(response.body);
-          documentos = lista.map((model) => DocumentoUsuario.fromJson(model)).toList();
-          loading = false;
-        } else {
-          Get.offAndToNamed(Routes.LOGIN);
-        }
-      } else {
-        Get.offAndToNamed(Routes.LOGIN);
-      }
-    }
-
-    // Executa a busca dos documentos antes de abrir o Dialog
-    await buscarDocumentosUsuario();
-
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0))),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Calcular a largura máxima necessária
-              double maxWidth = documentos.fold(0.0, (previousValue, doc) {
-                final textWidth = (TextPainter(
-                  text: TextSpan(text: doc.documento.nome, style: TextStyle(fontSize: 16)),
-                  maxLines: 1,
-                  textDirection: TextDirection.ltr,
-                )..layout()).size.width;
-
-                return textWidth > previousValue ? textWidth : previousValue;
-              });
-
-              // Adicionar padding e limitar a largura ao tamanho da tela
-              double dialogWidth = maxWidth + 300;
-              dialogWidth = dialogWidth.clamp(200.0, constraints.maxWidth * 0.9);
-
-              return Container(
-                width: dialogWidth,
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Linha para o botão de fechar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Documentos", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        IconButton(
-                          icon: Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                    // Indicador de carregamento ou lista de documentos
-                    loading
-                        ? CircularProgressIndicator()
-                        : documentos.isNotEmpty
-                        ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: documentos.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(documentos[index].documento.nome!,style:  TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                          subtitle: documentos[index].entregue == true ?  Text("Status: Entregue") : Text("Status: Pendente"),
-                          trailing: documentos[index].entregue == true ? IconButton(
-                            onPressed: () {
-                              print(controller.token.value);
-                              MontaPDF.ConsultaEMontaPDFAnexo(context, documentos[index], controller.token.value);
-                            },
-                            icon: Tooltip(message: "Visualizar Anexo", child: Icon(Icons.remove_red_eye),),
-                          ) : SizedBox(),
-                        );
-                      },
-                    )
-                        : Text("Nenhum documento encontrado."),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
 
 // Função para visualizar o anexo
   void visualizarAnexo(DocumentoUsuario documento) {
     // Implementar a lógica para visualizar o anexo aqui
   }
+
 
 
 // Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {

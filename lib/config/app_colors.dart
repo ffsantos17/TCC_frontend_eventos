@@ -16,4 +16,5 @@ class AppColors {
   static const Color customGrey = Color(0xff959595);
   static const Color black = Color(0xff000000);
   static const Color orange = Color(0xffff6200);
+  static const Color yellow = Color(0xffffd400);
 }
