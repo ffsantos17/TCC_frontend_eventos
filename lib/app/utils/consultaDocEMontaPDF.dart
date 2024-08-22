@@ -60,5 +60,43 @@ class MontaPDF{
               .statusCode}');
     }
   }
+
+  static ConsultaEMontaPDFAnexo(context, documento, token) async {
+    final extension = p.extension(documento.nomeAnexo);
+    Map<String, String> requestHeaders = {
+      'Authorization': "Bearer " +
+          token
+    };
+    var response = await API.requestGet(
+        'documentos/download/documentos_usuario/' +
+            documento.nomeAnexo,
+        requestHeaders);
+    print(documento.nomeAnexo);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      final Uint8List bytes = response.bodyBytes;
+      final blob = html.Blob(
+          [bytes], 'application/pdf');
+      final url = html.Url
+          .createObjectUrlFromBlob(blob);
+
+      final html.IFrameElement iframe = html
+          .IFrameElement()
+        ..src = url
+        ..style.border = 'none';
+      final String viewType = 'iframeElement_${DateTime
+          .now()
+          .millisecondsSinceEpoch}';
+      ui.platformViewRegistry.registerViewFactory(
+        viewType,
+            (int viewId) => iframe,
+      );
+      AbrirPDF(context, viewType, extension, documento.nomeAnexo, url);
+    } else {
+      print(
+          'Erro ao fazer a requisição: ${response
+              .statusCode}');
+    }
+  }
 }
 

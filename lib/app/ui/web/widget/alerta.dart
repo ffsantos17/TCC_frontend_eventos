@@ -53,3 +53,29 @@ Future<String?> alertConfirm(BuildContext context, function, id, inscrever, usua
     ),
   );
 }
+
+Future<String?> alertConfirmAlterarStatusInscricao(BuildContext context, function, id, statusId) {
+  return showDialog<String>(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text('Confirmar'),
+      content: Text('Deseja ${statusId == 4 ? "confirmar" : "cancelar"} essa inscrição?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () async {
+            await function(id, statusId);
+            Navigator.pop(context);
+          },
+          child: const Text('Sim'),
+        ),
+
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Não'),
+          child: const Text('Não'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.0))),
+    ),
+  );
+}

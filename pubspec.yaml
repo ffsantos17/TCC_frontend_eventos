@@ -61,6 +61,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^24.2.9
   syncfusion_flutter_gauges: ^24.2.9
   font_awesome_flutter: ^10.7.0
+  badges: ^3.1.2
 
 dev_dependencies:
   flutter_test:

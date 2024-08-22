@@ -19,6 +19,7 @@ import '../../controller/authController.dart';
 import '../../data/model/eventoUsuario.dart';
 import '../../routes/app_routes.dart';
 import 'dashboard_page.dart';
+import 'package:badges/badges.dart' as badges;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -203,7 +204,7 @@ class HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: size.width > 700 ? 6 : 8,
               child: _tela,
             ),
           ],

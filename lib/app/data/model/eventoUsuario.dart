@@ -6,13 +6,14 @@ class EventoUsuario{
   final int id;
   final int usuarioId;
   final int eventoId;
+  final int status_id;
   final String status;
   final int tipoInscricao_Id;
   final String tipoInscricao_Nome;
   final Evento evento;
   final List<DocumentoUsuario> documentos;
 
-  EventoUsuario({required this.id,required this.usuarioId,required this.eventoId,required this.status,required this.evento, required this.documentos, required this.tipoInscricao_Id, required this.tipoInscricao_Nome});
+  EventoUsuario({required this.id,required this.usuarioId,required this.eventoId, required this.status_id,required this.status,required this.evento, required this.documentos, required this.tipoInscricao_Id, required this.tipoInscricao_Nome});
 
   factory EventoUsuario.fromJson(Map<String, dynamic> json) {
     var listaDocumentos = json['documentos'] as List<dynamic>;
@@ -20,6 +21,7 @@ class EventoUsuario{
     return EventoUsuario(id: json['id'],
         usuarioId: json['idUsuario'],
         eventoId: json['idEvento'],
+        status_id: json['status_id'],
         status: json['status'].toString(),
         tipoInscricao_Id: json['tipoInscricao_Id'],
         tipoInscricao_Nome: json['tipoInscricao_Nome'].toString(),

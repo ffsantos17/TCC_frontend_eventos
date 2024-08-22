@@ -25,8 +25,8 @@ class _DashboardState extends State<Dashboard> {
     // TODO: implement initState
     super.initState();
     eventosUsuario = widget.usuario.eventos!;
-    eventosPendentes = eventosUsuario.where((evento) => evento.status == 'pendente').toList();
-    eventosProximos = eventosUsuario.where((evento) => evento.evento.data!.isAfter(DateTime.now()) && evento.evento.data!.isBefore(DateTime.now().add(Duration(days: 30))) && evento.status == 'aprovado').toList();
+    eventosPendentes = eventosUsuario.where((evento) => evento.status_id == 5).toList();
+    eventosProximos = eventosUsuario.where((evento) => evento.evento.data!.isAfter(DateTime.now()) && evento.evento.data!.isBefore(DateTime.now().add(Duration(days: 30))) && evento.status_id == 4).toList();
   }
 
   @override
@@ -44,8 +44,8 @@ class _DashboardState extends State<Dashboard> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   EventCard(title: 'Eventos Solicitados', quantity: eventosUsuario.length), // Substitua 10 pela quantidade do banco de dados
-                  EventCard(title: 'Eventos Pendentes', quantity: eventosUsuario.where((evento) => evento.status == 'pendente').length), // Substitua 5 pela quantidade do banco de dados
-                  EventCard(title: 'Eventos Inscritos', quantity: eventosUsuario.where((evento) => evento.status == 'aprovado').length), // Substitua 20 pela quantidade do banco de dados
+                  EventCard(title: 'Eventos Pendentes', quantity: eventosUsuario.where((evento) => evento.status_id == 5).length), // Substitua 5 pela quantidade do banco de dados
+                  EventCard(title: 'Eventos Inscritos', quantity: eventosUsuario.where((evento) => evento.status_id == 4).length), // Substitua 20 pela quantidade do banco de dados
                 ],
               ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.04,),

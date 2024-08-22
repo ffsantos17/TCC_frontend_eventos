@@ -19,7 +19,8 @@ class Usuario{
   }
 
   factory Usuario.fromJson(Map<String, dynamic> json){
-    var listaEventos = json['eventos'] as List<dynamic>;
+    var l = json['eventos'] ?? [];
+    var listaEventos = l as List<dynamic>;
     List<EventoUsuario> eventos = listaEventos.map((docJson) => EventoUsuario.fromJson(docJson)).toList();
 
     return Usuario(id : json['id'],
