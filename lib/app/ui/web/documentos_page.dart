@@ -92,10 +92,10 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
     ])).toList();
     colunas = [
       // ColumnGrid("id", "Id", Alignment.center, 8),
-      ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("pModelo", "Possui modelo?", Alignment.center, 8),
-      ColumnGrid("tipoArquivo", "Tipo Anexo", Alignment.center, 8),
-      ColumnGrid("acoes", "Ações", Alignment.center, 8),
+      ColumnGrid("nome", "Nome", Alignment.center, 8, true),
+      ColumnGrid("pModelo", "Possui modelo?", Alignment.center, 8, true),
+      ColumnGrid("tipoArquivo", "Tipo Anexo", Alignment.center, 8, true),
+      ColumnGrid("acoes", "Ações", Alignment.center, 8, false),
     ];
     documentoDataSource = GridDataSource(data: _documentoData);
   }

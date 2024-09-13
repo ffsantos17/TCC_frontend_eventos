@@ -6,6 +6,7 @@ import 'package:if_travel/app/routes/app_pages.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:if_travel/config/app_colors.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 import 'app/controller/authController.dart';
 
@@ -41,11 +42,13 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        SfGlobalLocalizations.delegate
       ],
-      supportedLocales: [
-        const Locale('pt', 'BR'),
-        const Locale('en', 'US'),
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+        Locale('en', 'US'),
       ],
+      locale: const Locale('pt', 'BR'),
     );
   }
 }

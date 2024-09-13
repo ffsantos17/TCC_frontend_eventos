@@ -71,11 +71,11 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
       ),),
     ])).toList();
     colunas = [
-      ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("data", "Data", Alignment.center, 8),
-      ColumnGrid("status", "Status", Alignment.center, 8),
-      ColumnGrid("docEntregues", "Documentos Entregues", Alignment.center, 8),
-      ColumnGrid("acoes", "Ações", Alignment.center, 8),
+      ColumnGrid("nome", "Nome", Alignment.center, 8, true),
+      ColumnGrid("data", "Data", Alignment.center, 8, true),
+      ColumnGrid("status", "Status", Alignment.center, 8, true),
+      ColumnGrid("docEntregues", "Documentos Entregues", Alignment.center, 8, false),
+      ColumnGrid("acoes", "Ações", Alignment.center, 8, false),
     ];
     eventoDataSource = GridDataSource(data: _eventoData);
   }

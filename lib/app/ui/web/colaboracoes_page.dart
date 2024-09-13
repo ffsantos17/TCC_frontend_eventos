@@ -33,7 +33,8 @@ class _ListaColaboracoesState extends State<ListaColaboracoes> {
   _montarTabela(){
     _eventoData = eventos.map<DataGridRow>((e) => DataGridRow(cells: [
       DataGridCell<String>(columnName: 'nome', value: e.evento.nome),
-      DataGridCell<String>(columnName: 'data', value: e.evento.data!.diaMesAno().toString()+" - "+e.evento.dataFim!.diaMesAno().toString()),
+      DataGridCell<DateTime>(columnName: 'dataI', value: e.evento.data!),
+      DataGridCell<DateTime>(columnName: 'dataF', value: e.evento.dataFim!),
       DataGridCell<String>(columnName: 'vagas', value: e.evento.vagasDisponiveis.toString()+" / "+e.evento.vagas.toString()),
       DataGridCell<Widget>(columnName: 'acoes', value: Padding(
         padding: const EdgeInsets.all(3),
@@ -56,10 +57,11 @@ class _ListaColaboracoesState extends State<ListaColaboracoes> {
       ),),
     ])).toList();
     colunas = [
-      ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("data", "Data", Alignment.center, 8),
-      ColumnGrid("vagas", "Vagas", Alignment.center, 8),
-      ColumnGrid("acoes", "Ações", Alignment.center, 8),
+      ColumnGrid("nome", "Nome", Alignment.center, 8, true),
+      ColumnGrid("dataI", "DataInicio", Alignment.center, 8, true),
+      ColumnGrid("dataF", "DataFim", Alignment.center, 8, true),
+      ColumnGrid("vagas", "Vagas", Alignment.center, 8, false),
+      ColumnGrid("acoes", "Ações", Alignment.center, 8, false),
     ];
     eventoDataSource = GridDataSource(data: _eventoData);
   }
@@ -87,9 +89,11 @@ class _ListaColaboracoesState extends State<ListaColaboracoes> {
               height: MediaQuery.of(context).size.height * 0.75,
               width: MediaQuery.of(context).size.width * 0.90,
               child: SfDataGrid(
-                  source: eventoDataSource,
-                  columnWidthMode: ColumnWidthMode.fill,
-                  columns: getColumns(colunas)
+                source: eventoDataSource,
+                columnWidthMode: ColumnWidthMode.fill,
+                columns: getColumns(colunas),
+                allowSorting: true,
+                allowFiltering: true,
               ),
             ),
           ],

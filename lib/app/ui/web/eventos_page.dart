@@ -85,11 +85,11 @@ class _ListaEventosState extends State<ListaEventos> {
       DataGridCell<String>(columnName: 'link', value: e.link),
     ])).toList();
     colunas = [
-      ColumnGrid("id", "Id", Alignment.center, 8),
-      ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("data", "Data", Alignment.center, 8),
-      ColumnGrid("publico", "É publico?", Alignment.center, 8),
-      ColumnGrid("link", "Link", Alignment.center, 8),
+      ColumnGrid("id", "Id", Alignment.center, 8, true),
+      ColumnGrid("nome", "Nome", Alignment.center, 8, true),
+      ColumnGrid("data", "Data", Alignment.center, 8, true),
+      ColumnGrid("publico", "É publico?", Alignment.center, 8, true),
+      ColumnGrid("link", "Link", Alignment.center, 8, true),
     ];
     eventoDataSource = GridDataSource(data: _eventoData);
   }

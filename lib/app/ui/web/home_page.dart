@@ -48,6 +48,7 @@ class HomePageState extends State<HomePage> {
   _verificarLogin() async{
     // final SharedPreferences prefs = await _prefs;
     // String? storedToken = prefs.getString('if_travel_jwt_token');
+    await controller.obterToken();
     String? storedToken = controller.token.value;
     // print(storedToken);
     if(storedToken.isNotEmpty) {

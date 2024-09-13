@@ -28,11 +28,11 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
       DataGridCell<int>(columnName: 'matricula', value: e.matricula),
     ])).toList();
     colunas = [
-      ColumnGrid("id", "Id", Alignment.center, 8),
-      ColumnGrid("nome", "Nome", Alignment.center, 8),
-      ColumnGrid("cpf", "CPF", Alignment.center, 8),
-      ColumnGrid("email", "Email", Alignment.center, 8),
-      ColumnGrid("matricula", "Matricula", Alignment.center, 8),
+      ColumnGrid("id", "Id", Alignment.center, 8, true),
+      ColumnGrid("nome", "Nome", Alignment.center, 8, true),
+      ColumnGrid("cpf", "CPF", Alignment.center, 8, true),
+      ColumnGrid("email", "Email", Alignment.center, 8, true),
+      ColumnGrid("matricula", "Matricula", Alignment.center, 8, true),
     ];
     usuarioDataSource = GridDataSource(data: _usuarioData);
   }

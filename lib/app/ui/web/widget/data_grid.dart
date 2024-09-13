@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 
@@ -21,7 +22,7 @@ class GridDataSource extends DataGridSource {
           return Container(
             alignment: Alignment.center,
             padding: EdgeInsets.all(8.0),
-            child: e.value is String ? Text(e.value) : e.value,
+            child: e.value is String ? Text(e.value) : e.value is DateTime ? Text(DateFormat('dd/MM/yyyy').format(e.value)) : e.value,
           );
         }).toList());
   }
@@ -29,12 +30,13 @@ class GridDataSource extends DataGridSource {
 
 class ColumnGrid {
 
-  ColumnGrid(this.nome, this.texto, this.alignment, this.padding);
+  ColumnGrid(this.nome, this.texto, this.alignment, this.padding, this.sort);
 
   final String? nome;
   final String? texto;
   final Alignment? alignment;
   final double? padding;
+  final bool? sort;
 
 }
 
@@ -47,5 +49,8 @@ List<GridColumn> getColumns(data) {
             padding: EdgeInsets.all(e.padding!),
             alignment: e.alignment,
             child: Text(e.texto!,
-                overflow: TextOverflow.clip, softWrap: true)));}).toList();
+                overflow: TextOverflow.clip, softWrap: true)),
+            allowSorting: e.sort ?? false,
+            allowFiltering: e.sort ?? false,
+          );}).toList();
 }

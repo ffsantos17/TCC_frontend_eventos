@@ -146,6 +146,7 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
     // var response = await API.requestPost('documentos/criar', body, requestHeaders);
     print(response.statusCode);
     if(response.statusCode == 200) {
+      controller.obterUsuario();
       Get.offAndToNamed(Routes.HOME);
     }else{
       ToastificationDefault(
