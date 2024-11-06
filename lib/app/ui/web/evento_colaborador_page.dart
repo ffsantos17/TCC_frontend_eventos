@@ -25,6 +25,8 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:toastification/toastification.dart';
 
+import '../../data/model/usuario.dart';
+
 class EventosColaborador extends StatefulWidget {
   const EventosColaborador({super.key});
 
@@ -106,8 +108,6 @@ class _EventosColaboradorState extends State<EventosColaborador> {
     });
   }
 
-
-
   filter(value, filtro){
     setState(() {
       value = !value;
@@ -139,6 +139,8 @@ class _EventosColaboradorState extends State<EventosColaborador> {
       }
     });
   }
+
+
 
   buscarEvento(idEvento) async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -262,7 +264,45 @@ class _EventosColaboradorState extends State<EventosColaborador> {
     });
   }
 
+  _inserirColaborador(eventoId, usuarioId) async{
 
+    Map<String, String> requestHeaders = {
+      'Authorization': "Bearer "+controller.token.value,
+      'eventoId': eventoId.toString(),
+      'usuarioId': usuarioId.toString(),
+      'tipoInscricaoId': "2",
+      'statusInscricaoId': "4",
+    };
+    var response = await API.requestPost('usuario/registrar-usuario-evento', null, requestHeaders);
+    if(response.statusCode == 200) {
+      buscarParticipantes(eventoId);
+    }else{
+      return alertErro(context, "Erro", "Falha ao realizar inscrição");
+    }
+  }
+
+  Future<List<Usuario>> _buscarProfessores() async {
+    if (controller.token.value.isNotEmpty) {
+      print(controller.token.value.isNotEmpty);
+      Map<String, String> requestHeaders = {
+        'tipoUsuario_Id': "3",
+        'Authorization': "Bearer " + controller.token.value
+      };
+      var response = await API.requestGet(
+          'usuario/listar_por_tipo', requestHeaders);
+      print(response.statusCode);
+      List<Usuario> professores = <Usuario>[];
+      if (response.statusCode == 200) {
+        //response = json.decode(response.body);
+        Iterable lista = json.decode(response.body);
+        professores = lista.map((model) => Usuario.fromJson(model)).toList();
+      }
+        return professores;
+    } else {
+      Get.offAndToNamed(Routes.LOGIN);
+      return [];
+    }
+  }
 
   _att(){
     setState(() {
@@ -378,7 +418,28 @@ class _EventosColaboradorState extends State<EventosColaborador> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.only(left: 10, bottom: 15),
-                              child: Text("Colaboradores", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              child: Row(
+                                children: [
+                                  Text("Colaboradores", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19)),
+                                  SizedBox(width: 20,),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      inserirColaborador(context);
+                                    },
+                                    label: Text("Adicionar Colaborador"),
+                                    icon: Icon(Icons.add),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.all(10),
+                                        minimumSize: Size(0, 0),
+                                        elevation: 0,
+                                        backgroundColor: AppColors.greyColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(5), // <-- Radius
+                                        ),
+                                      )
+                                  ),
+                                ],
+                              ),
                             ),
                             Container(
                               // width: 500,
@@ -660,7 +721,7 @@ class _EventosColaboradorState extends State<EventosColaborador> {
                         ),
                         size.width > 700 ? Text(" | ") : SizedBox(),
                         Text(
-                          "Status: ${participante.status}",
+                          "Status: ",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -668,6 +729,17 @@ class _EventosColaboradorState extends State<EventosColaborador> {
                             fontSize: 14,
                             height: 1.5,
                             color: Color(0xFF4F7396),
+                          ),
+                        ),
+                        Text(
+                          participante.status,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            height: 1.5,
+                            color: participante.status_id == 6 ? AppColors.redColor : participante.status_id == 4 ? AppColors.mainGreenColor : AppColors.yellow,
                           ),
                         ),
                     ]
@@ -850,6 +922,7 @@ class _EventosColaboradorState extends State<EventosColaborador> {
 
 
 
+
 // Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {
   //   bool loading = true;
   //   List<DocumentoUsuario> documentos = [];
@@ -906,5 +979,151 @@ class _EventosColaboradorState extends State<EventosColaborador> {
   //   );
   // }
 
+  Future<String?> inserirColaborador(BuildContext context) async {
+    List<Usuario> professoresDB = await _buscarProfessores();
+    List<Usuario> professores = professoresDB;
+
+
+
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        content: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          _searchColaboradores(String busca){
+            setState(() {
+              professores = [];
+              busca = busca.toLowerCase();
+              professoresDB.forEach((element) {
+                if(element.nome!.toLowerCase().contains(busca) || element.cpf!.toLowerCase().contains(busca) || element.matricula!.toString().contains(busca) || element.email!.toLowerCase().contains(busca)){
+                  professores.add(element);
+                }
+              });
+            });
+          }
+          return Container(
+            width: MediaQuery.of(context).size.width * 0.3,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Adicionar Colaborador", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  SizedBox(height: 20,),
+                  Container(
+                    width: 400,
+                    height: 35,
+                    child: TextFormField(
+                      controller: buscaController,
+                      onChanged: _searchColaboradores,
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(fontSize: 14),
+                        hintText: "Buscar",
+                        contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0)),
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.clear, size: 15,),
+                          onPressed: () {
+                            buscaController.text = '';
+                            _searchColaboradores(buscaController.text);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20,),
+                  Container(
+                    // width: 500,
+                    height:  professores.length * 75,
+                    child: ListView.builder(
+                      //controller: _scrollController,
+                      scrollDirection: Axis.vertical,
+                      itemCount: professores.length,
+                      itemBuilder: (context, index) {
+                        bool isColaborador = colaboradores.any((colaborador) => colaborador.usuario.id == professores[index].id);
+                        return Container(
+                          margin: EdgeInsets.fromLTRB(0, 5.5, 0, 5.5),
+                          child: Row(
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Container(
+                                      child:
+                                      Text(
+                                        professores[index].nome!,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                          height: 1.5,
+                                          color: Color(0xFF0D141C),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    professores[index].email!,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      height: 1.5,
+                                      color: Color(0xFF4F7396),
+                                    ),
+                                  ),
+                                  Divider()
+                                ],
+                              ),
+                              Spacer(),
+                              ElevatedButton(
+                                  onPressed: isColaborador ? null : () async {
+                                    await _inserirColaborador(evento.id, professores[index].id);
+                                    Navigator.pop(context);
+                                  },
+                                  child: isColaborador ? Text("Adicionado", style: TextStyle(color: AppColors.black)) : Text("Adicionar", style: TextStyle(color: AppColors.whiteColor)),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.all(15),
+                                    minimumSize: Size(0, 0),
+                                    elevation: 0,
+                                    backgroundColor: AppColors.mainBlueColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5), // <-- Radius
+                                    ),
+                                  ))
+                            ],
+                          ),
+                        );
+                      }
+                          ,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        }),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12.0))),
+      ),
+    );
+  }
+
 }
+
+
 

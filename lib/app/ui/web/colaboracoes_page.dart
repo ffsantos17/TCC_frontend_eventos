@@ -69,7 +69,7 @@ class _ListaColaboracoesState extends State<ListaColaboracoes> {
   @override
   void initState() {
     super.initState();
-    eventos = controller.usuario!.eventos!.where((element) => element.tipoInscricao_Id==1).toList();
+    eventos = controller.usuario!.eventos!.where((element) => element.tipoInscricao_Id==1 || element.tipoInscricao_Id==2).toList();
     _montarTabela();
   }
 

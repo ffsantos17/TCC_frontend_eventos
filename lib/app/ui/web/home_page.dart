@@ -87,7 +87,8 @@ class HomePageState extends State<HomePage> {
       ListaInscricoes(eventos: usuario.eventos!),
       ListaEventos(usuario: usuario,),
       ListaDocumentos(),
-      ListaColaboracoes()
+      ListaColaboracoes(),
+      ListaUsuarios()
     ];
     setState(() {
       _tela=_telas[indice];
@@ -141,6 +142,7 @@ class HomePageState extends State<HomePage> {
                           itemDrawer(size.width>500 ? "Eventos" : "", Icons.event, _verificarLogin, tela, 2, _indiceAtual, [1, 2, 3], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Meus Eventos" : "", Icons.event_available, _verificarLogin, tela, 4, _indiceAtual, [3], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Documentos" : "", Icons.article_rounded, _verificarLogin, tela, 3, _indiceAtual, [3], usuario.tipoUsuarioId),
+                          itemDrawer(size.width>500 ? "Usuários" : "", Icons.group, _verificarLogin, tela, 5, _indiceAtual, [1], usuario.tipoUsuarioId),
                           // ListTile(
                           //   title: size.width>500 ?  Text("Dashboard") : null,
                           //   leading: Icon(Icons.dashboard),

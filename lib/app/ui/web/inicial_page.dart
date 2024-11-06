@@ -78,16 +78,16 @@ class _InicialPageState extends State<InicialPage> {
                 children: [
                   Text("App_Name", style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),),
                   Spacer(),
-                  ElevatedButton(onPressed: (){Get.toNamed(Routes.CADASTRO);}, child: Text("Cadastre-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.all(17),
-                        minimumSize: Size(0, 0),
-                        elevation: 0,
-                        backgroundColor: Color(0xff3853a1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10), // <-- Radius
-                        ),
-                    ),),
+                  // ElevatedButton(onPressed: (){Get.toNamed(Routes.CADASTRO);}, child: Text("Cadastre-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  //   style: ElevatedButton.styleFrom(
+                  //       padding: EdgeInsets.all(17),
+                  //       minimumSize: Size(0, 0),
+                  //       elevation: 0,
+                  //       backgroundColor: Color(0xff3853a1),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(10), // <-- Radius
+                  //       ),
+                  //   ),),
                   SizedBox(width: 20,),
                   ElevatedButton(onPressed: (){
                     Get.toNamed(Routes.LOGIN);

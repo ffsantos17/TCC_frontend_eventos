@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/model/usuario.dart';
+
 Future<String?> alertErro(BuildContext context, titulo, mensagem) {
   return showDialog<String>(
     context: context,
@@ -64,6 +66,32 @@ Future<String?> alertConfirmAlterarStatusInscricao(BuildContext context, functio
         TextButton(
           onPressed: () async {
             await function(id, statusId);
+            Navigator.pop(context);
+          },
+          child: const Text('Sim'),
+        ),
+
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Não'),
+          child: const Text('Não'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12.0))),
+    ),
+  );
+}
+
+Future<String?> alertConfirmDeleteUsuario(BuildContext context, functionDelete, Usuario usuario) {
+  return showDialog<String>(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text('Confirmar'),
+      content: Text('Deseja Excluir o usuário ${usuario.nome}?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () async {
+            await functionDelete(usuario.id);
             Navigator.pop(context);
           },
           child: const Text('Sim'),

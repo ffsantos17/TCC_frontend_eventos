@@ -5,7 +5,7 @@ import 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-String base_url = "http://192.168.1.214:8080/";
+String base_url = "http://localhost:8080/";
 class API {
   static Future requestGet(endpoint, headers) async {
     var url = base_url + endpoint;

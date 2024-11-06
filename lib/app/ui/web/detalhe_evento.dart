@@ -116,7 +116,6 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   }
 
   _inscrever(eventoId, usuarioId) async{
-
     var body = {
       "eventoId": eventoId.toString(),
       "usuarioId": usuarioId.toString()
@@ -124,7 +123,9 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
     Map<String, String> requestHeaders = {
       'Authorization': "Bearer "+storedToken,
       'eventoId': eventoId.toString(),
-      'usuarioId': usuarioId.toString()
+      'usuarioId': usuarioId.toString(),
+      'tipoInscricaoId': "3",
+      'statusInscricaoId': "5",
     };
     var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
     if(response.statusCode == 200) {
