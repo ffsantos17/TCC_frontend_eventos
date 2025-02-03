@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:if_travel/config/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -49,6 +50,7 @@ List<GridColumn> getColumns(data) {
             padding: EdgeInsets.all(e.padding!),
             alignment: e.alignment,
             child: Text(e.texto!,
+                style: TextStyle(color: AppColors.whiteColor),
                 overflow: TextOverflow.clip, softWrap: true)),
             allowSorting: e.sort ?? false,
             allowFiltering: e.sort ?? false,

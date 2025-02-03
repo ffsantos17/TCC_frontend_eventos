@@ -108,7 +108,9 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       Evento ev = Evento.fromJson(json.decode(teste));
       setState(() {
         evento = ev;
-        eventoIds = controller.usuario!.eventos!.map((e) => e.eventoId).toSet();
+        if(controller.usuario != null){
+          eventoIds = controller.usuario!.eventos!.map((e) => e.eventoId).toSet();
+        }
       });
     }else{
       Get.offAndToNamed(Routes.HOME);
@@ -121,7 +123,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       "usuarioId": usuarioId.toString()
     };
     Map<String, String> requestHeaders = {
-      'Authorization': "Bearer "+storedToken,
+      'Authorization': "Bearer "+controller.token.toString(),
       'eventoId': eventoId.toString(),
       'usuarioId': usuarioId.toString(),
       'tipoInscricaoId': "3",
@@ -150,8 +152,10 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
     // await _buscarUsuario();
     await _inserirVisitas(id);
     setState(() {
-      eventoIds = controller.usuario!.eventos!.map((e) => e.evento.id!).toSet();
-      inscrito = eventoIds.contains(evento.id!);
+      if(controller.usuario != null) {
+        eventoIds = controller.usuario!.eventos!.map((e) => e.evento.id!).toSet();
+        inscrito = eventoIds.contains(evento.id!);
+      }
       loading=false;
     });
   }

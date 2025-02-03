@@ -11,6 +11,7 @@ import 'package:if_travel/config/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:badges/badges.dart' as badges;
 import '../../routes/app_routes.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class ListaInscricoes extends StatefulWidget {
   List<EventoUsuario> eventos;
@@ -97,15 +98,18 @@ class _ListaInscricoesState extends State<ListaInscricoes> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Eventos", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),),
+            Text("Eventos Inscrito", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),),
             SizedBox(height: 20,),
             Container(
               height: MediaQuery.of(context).size.height * 0.75,
               width: MediaQuery.of(context).size.width * 0.90,
-              child: SfDataGrid(
-                source: eventoDataSource,
-                columnWidthMode: ColumnWidthMode.fill,
-                columns: getColumns(colunas)
+              child: SfDataGridTheme(
+                data: SfDataGridThemeData(headerColor: AppColors.mainBlueColor),
+                child: SfDataGrid(
+                  source: eventoDataSource,
+                  columnWidthMode: ColumnWidthMode.fill,
+                  columns: getColumns(colunas)
+                ),
               ),
             ),
           ],

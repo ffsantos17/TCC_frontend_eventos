@@ -12,6 +12,7 @@ import '../../../api.dart';
 import '../../../config/app_colors.dart';
 import '../../data/model/usuario.dart';
 import '../../routes/app_routes.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class ListaUsuarios extends StatefulWidget {
   const ListaUsuarios({super.key});
@@ -223,10 +224,13 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
                 : Container(
               height: MediaQuery.of(context).size.height * 0.75,
               width: MediaQuery.of(context).size.width * 0.90,
-              child: SfDataGrid(
-                  source: usuarioDataSource,
-                  columnWidthMode: ColumnWidthMode.fill,
-                  columns: getColumns(colunas)
+              child: SfDataGridTheme(
+                data: SfDataGridThemeData(headerColor: AppColors.mainBlueColor),
+                child: SfDataGrid(
+                    source: usuarioDataSource,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    columns: getColumns(colunas)
+                ),
               ),
             ),
           ],

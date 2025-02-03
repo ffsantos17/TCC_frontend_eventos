@@ -43,9 +43,9 @@ class _DashboardState extends State<Dashboard> {
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  EventCard(title: 'Eventos Solicitados', quantity: eventosUsuario.length), // Substitua 10 pela quantidade do banco de dados
-                  EventCard(title: 'Eventos Pendentes', quantity: eventosUsuario.where((evento) => evento.status_id == 5).length), // Substitua 5 pela quantidade do banco de dados
-                  EventCard(title: 'Eventos Inscritos', quantity: eventosUsuario.where((evento) => evento.status_id == 4).length), // Substitua 20 pela quantidade do banco de dados
+                  EventCard(title: 'Inscrições Solicitadas', quantity: eventosUsuario.length), // Substitua 10 pela quantidade do banco de dados
+                  EventCard(title: 'Inscrições Pendentes', quantity: eventosUsuario.where((evento) => evento.status_id == 5).length), // Substitua 5 pela quantidade do banco de dados
+                  EventCard(title: 'Inscrições Aprovadas', quantity: eventosUsuario.where((evento) => evento.status_id == 4).length), // Substitua 20 pela quantidade do banco de dados
                 ],
               ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.04,),

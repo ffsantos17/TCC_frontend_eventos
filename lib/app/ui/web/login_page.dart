@@ -76,13 +76,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 height: altura,
                 color: AppColors.mainBlueColor,
                 child: Center(
-                  child: Text('Página Login Responsivo',
-                    // style: ralewayStyle.copyWith(
-                    //   fontSize: 48.0,
-                    //   color: AppColors.whiteColor,
-                    //   fontWeight: FontWeight.w800,
-                    // ),
-                  ),
+                  child: Image.network(base_url+"documentos/img/imagens/login_page.png")
                 ),
               ),
             ),
@@ -216,11 +210,9 @@ class _TelaLoginState extends State<TelaLogin> {
                             "email": emailController.text,
                             "senha": senhaController.text
                           };
-                          print(body.toString());
                           var token;
                           var response = await API.requestPost('auth/login', body, null);
-                          print(response.statusCode);
-                          if(response.body == "Usuario ou senha invalidos"){
+                          if(response.statusCode == 500){
                             alertErro(context, "Erro","Usuario ou senha inválidos");
                           }else{
                             token = response.body;

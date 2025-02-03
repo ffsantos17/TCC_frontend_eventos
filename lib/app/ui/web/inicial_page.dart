@@ -30,13 +30,13 @@ class _InicialPageState extends State<InicialPage> {
 
   _buscarEventos() async{
       var response = await API.requestGet('eventos/listar', null);
-      if(response.statusCode == 200) {
+      if(response.statusCode == 200 || response.statusCode == 204) {
         //response = json.decode(response.body);
-        Iterable lista = json.decode(response.body);
+        Iterable lista = response.body == "" ? [] : json.decode(response.body);
         setState(() {
           eventosDB = lista.map((model) => Evento.fromJson(model)).toList();
           eventos = eventosDB;
-          topEvento = eventosDB.reduce((current, next) => next.visitas! > current.visitas! ? next : current);
+          topEvento = eventos.length > 0 ? eventosDB.reduce((current, next) => next.visitas! > current.visitas! ? next : current) : Evento(documentos: [], imagem: "sem_evento.png", nome: "Nenhum Evento", data: DateTime.now());
           loading = false;
         });
       }else{
@@ -69,40 +69,42 @@ class _InicialPageState extends State<InicialPage> {
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(title: Text("Gerenciador de Eventos", style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold)),
+      actions: [
+        // Padding(
+        //   padding: EdgeInsets.only(top: 10, left: 20, right: 0),
+        //   child: ElevatedButton(onPressed: (){Get.toNamed(Routes.CADASTRO);}, child: Text("Cadastre-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        //     style: ElevatedButton.styleFrom(
+        //         padding: EdgeInsets.all(17),
+        //         minimumSize: Size(0, 0),
+        //         elevation: 0,
+        //         backgroundColor: Color(0xff3853a1),
+        //         shape: RoundedRectangleBorder(
+        //           borderRadius: BorderRadius.circular(10), // <-- Radius
+        //         ),
+        //     ),),
+        // ),
+        Padding(
+          padding: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
+          child: ElevatedButton(onPressed: (){
+            Get.toNamed(Routes.LOGIN);
+          }, child: Text("Login", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(17),
+            minimumSize: Size(0, 0),
+            elevation: 0,
+            backgroundColor: Color(0xffcccccc),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10), // <-- Radius
+            ),
+          ),),
+        )],
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.only(top: 10, left: 20, right: 20),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Text("App_Name", style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),),
-                  Spacer(),
-                  // ElevatedButton(onPressed: (){Get.toNamed(Routes.CADASTRO);}, child: Text("Cadastre-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                  //   style: ElevatedButton.styleFrom(
-                  //       padding: EdgeInsets.all(17),
-                  //       minimumSize: Size(0, 0),
-                  //       elevation: 0,
-                  //       backgroundColor: Color(0xff3853a1),
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(10), // <-- Radius
-                  //       ),
-                  //   ),),
-                  SizedBox(width: 20,),
-                  ElevatedButton(onPressed: (){
-                    Get.toNamed(Routes.LOGIN);
-                  }, child: Text("Login", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.all(17),
-                        minimumSize: Size(0, 0),
-                        elevation: 0,
-                        backgroundColor: Color(0xffcccccc),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10), // <-- Radius
-                        ),
-                    ),),
-                ],
-              ),
               Padding(
                 padding: EdgeInsets.only(top: 30, left: 70, right: 70),
                 child: Column(
@@ -149,7 +151,9 @@ class _InicialPageState extends State<InicialPage> {
                                     backgroundColor: AppColors.mainBlueColor
                                 ),),
                                 SizedBox(height: 20,),
-                                ElevatedButton(onPressed: (){}, child: Text("Inscreva-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                                ElevatedButton(onPressed: (){
+                                  Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', topEvento.id.toString()), arguments: {'evento': topEvento, 'useRoute': false});
+                                }, child: Text("Inscreva-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.all(17),
                                     minimumSize: Size(0, 0),
@@ -193,8 +197,9 @@ class _InicialPageState extends State<InicialPage> {
                       ),
                     ),
                     SizedBox(height: 30,),
-                    Text("Eventos Populares", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),),
+                    Text("Eventos", style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),),
                     loading == true ? Column(children: [CardLoading(height: 150),SizedBox(height: 5,), CardLoading(height: 150),SizedBox(height: 5,), CardLoading(height: 150)],) :
+                    eventos.length == 0 ? Center(child: Text("Nenhum evento disponível :(", style: TextStyle(fontSize: 20),)) :
                     Container(
                       height: eventos.length * 175,
                       child: Flexible(

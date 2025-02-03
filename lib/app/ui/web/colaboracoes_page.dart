@@ -8,6 +8,7 @@ import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 
 class ListaColaboracoes extends StatefulWidget {
   const ListaColaboracoes({super.key});
@@ -88,12 +89,15 @@ class _ListaColaboracoesState extends State<ListaColaboracoes> {
             Container(
               height: MediaQuery.of(context).size.height * 0.75,
               width: MediaQuery.of(context).size.width * 0.90,
-              child: SfDataGrid(
-                source: eventoDataSource,
-                columnWidthMode: ColumnWidthMode.fill,
-                columns: getColumns(colunas),
-                allowSorting: true,
-                allowFiltering: true,
+              child: SfDataGridTheme(
+                data: SfDataGridThemeData(headerColor: AppColors.mainBlueColor),
+                child: SfDataGrid(
+                  source: eventoDataSource,
+                  columnWidthMode: ColumnWidthMode.fill,
+                  columns: getColumns(colunas),
+                  allowSorting: true,
+                  allowFiltering: true,
+                ),
               ),
             ),
           ],

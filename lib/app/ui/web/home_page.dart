@@ -127,7 +127,7 @@ class HomePageState extends State<HomePage> {
                               width: 100,
                             ),
                             SizedBox(height: 10,),
-                            Flexible(child: Text(controller.usuario!.nome!)),
+                            Flexible(child: Text(controller.usuario!.nome!.split(" ")[0])),
                           ],
                         ) : SizedBox(),
                       ),
@@ -199,6 +199,8 @@ class HomePageState extends State<HomePage> {
                       onTap: () async {
                         final SharedPreferences prefs = await _prefs;
                         await prefs.remove('if_travel_jwt_token');
+                        controller.usuario = null;
+                        controller.token = "".obs;
                         Get.offAllNamed(Routes.INICIO);
                       },
                     ),

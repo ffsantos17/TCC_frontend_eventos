@@ -10,6 +10,7 @@ import 'package:if_travel/app/utils/consultaDocEMontaPDF.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:path/path.dart' as p;
+import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../../../api.dart';
 
@@ -134,10 +135,13 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
             Container(
               height: MediaQuery.of(context).size.height * 0.75,
               width: MediaQuery.of(context).size.width * 0.90,
-              child: SfDataGrid(
-                  source: documentoDataSource,
-                  columnWidthMode: ColumnWidthMode.fill,
-                  columns: getColumns(colunas)
+              child: SfDataGridTheme(
+                data: SfDataGridThemeData(headerColor: AppColors.mainBlueColor),
+                child: SfDataGrid(
+                    source: documentoDataSource,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    columns: getColumns(colunas)
+                ),
               ),
             ),
           ],

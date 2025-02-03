@@ -134,21 +134,6 @@ class _EventoCardState extends State<EventoCard> {
                 ElevatedButton(
                   onPressed: usuario.id == null ? () {Get.toNamed(Routes.LOGIN, arguments: widget.evento);} : () async {
                     Get.toNamed(Routes.DETALHE_EVENTO.replaceAll(':id', widget.evento.id.toString()), arguments: {'evento': widget.evento, 'useRoute': false});
-
-                    // var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
-                  // alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);
-
-                  // String response = await _buscarVagas(widget.evento.id!);
-                  // int vagas = int.parse(response);
-                  // if(response == 'erro'){
-                  //   print("erro");
-                  // }else{
-                  //   if(vagas > 0){
-                  //     print("Há Vagas");
-                  //   }else{
-                  //     alertErro(context, 'As vagas esgotaram!');
-                  //   }
-                  // }
                   },
                   child: Text("Detalhes", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.all(17),

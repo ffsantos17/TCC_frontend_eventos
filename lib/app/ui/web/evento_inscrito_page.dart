@@ -167,7 +167,7 @@ class _EventoInscritoState extends State<EventoInscrito> {
           size: 200,
         ),
       ) : Padding(
-        padding: const EdgeInsets.only(top: 50, left: 50, right: 50),
+        padding: const EdgeInsets.only(top: 20, left: 50, right: 50),
         child: Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
