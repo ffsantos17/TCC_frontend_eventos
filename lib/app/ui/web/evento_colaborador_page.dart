@@ -12,6 +12,7 @@ import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/eventoUsuario.dart';
 import 'package:if_travel/app/data/model/participanteEvento.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
+import 'package:if_travel/app/ui/web/editarEvento.dart';
 import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/alerta.dart';
 import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
@@ -344,13 +345,37 @@ class _EventosColaboradorState extends State<EventosColaborador> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              evento.nome!,
-                              style: TextStyle(
-                                fontSize: 38,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  evento.nome!,
+                                  style: TextStyle(
+                                    fontSize: 38,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 10,),
+                                ElevatedButton.icon(
+                                    onPressed: () {
+                                      Get.off(EditarEvento(evento: evento));
+                                    },
+                                    icon: Icon(Icons.edit),
+                                    label: Text("Editar Evento"),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.all(10),
+                                      minimumSize: Size(0, 0),
+                                      elevation: 0,
+                                      backgroundColor: AppColors.greyColor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5), // <-- Radius
+                                      ),
+                                      side: const BorderSide(
+                                          color: Colors.black26,
+                                          width: 1,
+                                      ),
+                                    ))
+                              ],
                             ),
                             SizedBox(height: 10,),
                             Row(

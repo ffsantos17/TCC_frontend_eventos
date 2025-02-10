@@ -21,7 +21,7 @@ class API {
 
   static Future requestWithFile(endpoint, file, headers, filename) async {
     var url = base_url + endpoint ;
-    var request = http.MultipartRequest('POST', Uri.parse(url));
+    var request = http.MultipartRequest(endpoint.contains('atualizar/') ? 'PUT' : 'POST', Uri.parse(url));
     // request.files.add(await http.MultipartFile.fromBytes('imagens', await file.readAsBytes(),filename: ""));
     file != null ? request.files.add(await http.MultipartFile.fromBytes('file', await file.readAsBytes(), filename: filename)) : null;
     request.headers.addAll(headers);
