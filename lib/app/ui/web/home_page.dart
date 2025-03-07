@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:if_travel/api.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
 import 'package:if_travel/app/ui/web/colaboracoes_page.dart';
 import 'package:if_travel/app/ui/web/documentos_page.dart';
-import 'package:if_travel/app/ui/web/evento_colaborador_page.dart';
 import 'package:if_travel/app/ui/web/eventos_page.dart';
 import 'package:if_travel/app/ui/web/incricoes_page.dart';
 import 'package:if_travel/app/ui/web/usuarios_page.dart';
@@ -19,7 +15,6 @@ import '../../controller/authController.dart';
 import '../../data/model/eventoUsuario.dart';
 import '../../routes/app_routes.dart';
 import 'dashboard_page.dart';
-import 'package:badges/badges.dart' as badges;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -46,8 +41,6 @@ class HomePageState extends State<HomePage> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   _verificarLogin() async{
-    // final SharedPreferences prefs = await _prefs;
-    // String? storedToken = prefs.getString('if_travel_jwt_token');
     await controller.obterToken();
     String? storedToken = controller.token.value;
     // print(storedToken);
@@ -56,26 +49,6 @@ class HomePageState extends State<HomePage> {
       tela(usuario.tipoUsuarioId != 2 ? 2 : 0);
       _indiceAtual = usuario.tipoUsuarioId != 2 ? 2 : 0;
       loading = false;
-      // Map<String, String> requestHeaders = {
-      //   'Authorization': "Bearer "+storedToken
-      // };
-      // var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
-      // if(response.statusCode == 200) {
-      //   response = json.decode(response.body);
-      //   setState(() {
-      //     usuario = Usuario.fromJson(response);
-      //     // eventosUsuario = usuario.eventos!.map((e) {
-      //     //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-      //     // }).toList();
-      //
-      //     tela(usuario.tipoUsuarioId == 1 ? 1 : 0);
-      //     token = storedToken;
-      //     loading = false;
-      //   });
-      // }else{
-      //   await prefs.remove('if_travel_jwt_token');
-      //   Get.toNamed(Routes.LOGIN);
-      // }
     }else{
       Get.toNamed(Routes.LOGIN);
     }
@@ -143,51 +116,6 @@ class HomePageState extends State<HomePage> {
                           itemDrawer(size.width>500 ? "Meus Eventos" : "", Icons.event_available, _verificarLogin, tela, 4, _indiceAtual, [3], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Documentos" : "", Icons.article_rounded, _verificarLogin, tela, 3, _indiceAtual, [3], usuario.tipoUsuarioId),
                           itemDrawer(size.width>500 ? "Usuários" : "", Icons.group, _verificarLogin, tela, 5, _indiceAtual, [1], usuario.tipoUsuarioId),
-                          // ListTile(
-                          //   title: size.width>500 ?  Text("Dashboard") : null,
-                          //   leading: Icon(Icons.dashboard),
-                          //   onTap: () async {
-                          //     await _verificarLogin();
-                          //     tela(0);
-                          //   },
-                          //   tileColor: _indiceAtual == 0 ? Colors.white : Colors.transparent,
-                          // ),
-                          // ListTile(
-                          //   title: Text("Minhas Incrições"),
-                          //   leading: Icon(Icons.event_available),
-                          //   onTap: () async {
-                          //     await _verificarLogin();
-                          //     tela(1);
-                          //   },
-                          //   tileColor: _indiceAtual == 1 ? Colors.white : Colors.transparent,
-                          // ),
-                          // ListTile(
-                          //   title: Text("Eventos"),
-                          //   leading: Icon(Icons.event),
-                          //   onTap: () async {
-                          //     await _verificarLogin();
-                          //     tela(2);
-                          //   },
-                          //   tileColor: _indiceAtual == 2 ? Colors.white : Colors.transparent,
-                          // ),
-                          // usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
-                          //   title: Text("Documentos"),
-                          //   leading: Icon(Icons.article_rounded),
-                          //   onTap: () async {
-                          //     await _verificarLogin();
-                          //     tela(3);
-                          //   },
-                          //   tileColor: _indiceAtual == 3 ? Colors.white : Colors.transparent,
-                          // ),
-                          // usuario.tipoUsuarioId == 2 ? SizedBox() : ListTile(
-                          //   title: Text("Usuários"),
-                          //   leading: Icon(Icons.group),
-                          //   onTap: () async {
-                          //     await _verificarLogin();
-                          //     tela(4);
-                          //   },
-                          //   tileColor: _indiceAtual == 4 ? Colors.white : Colors.transparent,
-                          // ),
                         ],
                       ),
                     ),

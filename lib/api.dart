@@ -1,9 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'dart:html' as html;
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 
 String base_url = "http://localhost:8080/";
 class API {

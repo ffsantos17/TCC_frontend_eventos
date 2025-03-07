@@ -8,7 +8,6 @@ import 'package:if_travel/app/ui/web/widget/toastification.dart';
 import 'package:if_travel/app/utils/filePicker.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:toastification/toastification.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -30,15 +29,6 @@ Future<String?> CriarDocumento(context, obterDocumentos){
       'Authorization': "Bearer " + controller.token.value
     };
     var response = await API.requestWithFile('documentos/criar', documento, requestHeaders, nomeDoc);
-    // var body = {
-    //   "nome": nome,
-    //   "possuiModelo": pModelo.toString(),
-    //   "modelo": documento.name
-    // };
-    // Map<String, String> requestHeaders = {
-    //   'Authorization': "Bearer "+controller.token.value,
-    // };
-    // var response = await API.requestPost('documentos/criar', body, requestHeaders);
     if(response.statusCode == 200) {
       await obterDocumentos;
     }else{
@@ -184,7 +174,6 @@ Future<String?> CriarDocumento(context, obterDocumentos){
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              // AssociarDocumentos(context);
             },
             child: const Text('Cancelar'),
           ),
@@ -192,7 +181,6 @@ Future<String?> CriarDocumento(context, obterDocumentos){
             onPressed: () async {
               await _criarDocumento(nomeDocController.text, possuiModelo, documento != null ? documento : null);
               Navigator.pop(context);
-              // AssociarDocumentos(context);
             },
             child: const Text('Criar'),
           ),

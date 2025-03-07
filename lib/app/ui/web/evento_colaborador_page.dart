@@ -9,22 +9,16 @@ import 'package:if_travel/api.dart';
 import 'package:if_travel/app/controller/authController.dart';
 import 'package:if_travel/app/data/model/documentosUsuario.dart';
 import 'package:if_travel/app/data/model/evento.dart';
-import 'package:if_travel/app/data/model/eventoUsuario.dart';
 import 'package:if_travel/app/data/model/participanteEvento.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:if_travel/app/ui/web/editarEvento.dart';
-import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:if_travel/app/ui/web/widget/alerta.dart';
 import 'package:if_travel/app/ui/web/widget/appBarCustom.dart';
 import 'package:if_travel/app/ui/web/widget/cardDocumentos.dart';
-import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/app/ui/web/widget/toastification.dart';
-import 'package:if_travel/app/utils/consultaDocEMontaPDF.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:badges/badges.dart' as badges;
-import 'package:toastification/toastification.dart';
 
 import '../../data/model/usuario.dart';
 
@@ -188,16 +182,8 @@ class _EventosColaboradorState extends State<EventosColaborador> {
             colaboradores = lista.map((model) => ParticipanteEvento.fromJson(model)).where((p) => p.tipoParticipante_Id == 1 || p.tipoParticipante_Id == 2).toList();
             loading = false;
           });
-          // var teste = utf8.decode(response.bodyBytes);
-          // List<ParticipanteEvento> part = json.decode(teste).map((model) => ParticipanteEvento.fromJson(model)).toList();
-          // setState(() {
-          //   participantes = part.where((p) => p.tipoParticipante_Id == 3).toList();;
-          //   loading = false;
-          // });
         }
       } else {
-        // Get.close(1);
-        // Get.offAndToNamed(Routes.LOGIN);
         Get.offAndToNamed(Routes.LOGIN);
       }
     });
@@ -222,8 +208,6 @@ class _EventosColaboradorState extends State<EventosColaborador> {
           buscarParticipantes(idEvento);
         }
       } else {
-        // Get.close(1);
-        // Get.offAndToNamed(Routes.LOGIN);
         Get.offAndToNamed(Routes.LOGIN);
       }
     });
@@ -246,16 +230,8 @@ class _EventosColaboradorState extends State<EventosColaborador> {
           setState(() {
             documentos = lista.map((model) => DocumentoUsuario.fromJson(model)).toList();
             print(documentos.length.toString());
-            // participantes = lista.map((model) => ParticipanteEvento.fromJson(model)).where((p) => p.tipoParticipante_Id == 3).toList();
-            // colaboradores = lista.map((model) => ParticipanteEvento.fromJson(model)).where((p) => p.tipoParticipante_Id == 1 || p.tipoParticipante_Id == 2).toList();
             loading = false;
           });
-          // var teste = utf8.decode(response.bodyBytes);
-          // List<ParticipanteEvento> part = json.decode(teste).map((model) => ParticipanteEvento.fromJson(model)).toList();
-          // setState(() {
-          //   participantes = part.where((p) => p.tipoParticipante_Id == 3).toList();;
-          //   loading = false;
-          // });
         }
       } else {
         // Get.close(1);
@@ -805,204 +781,6 @@ class _EventosColaboradorState extends State<EventosColaborador> {
       ),
     );
   }
-
-  // Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {
-  //   bool loading = true;
-  //   List<DocumentoUsuario> documentos = [];
-  //
-  //   // Função para buscar os documentos do usuário
-  //   Future<void> buscarDocumentosUsuario() async {
-  //     if (controller.token.value.isNotEmpty) {
-  //       Map<String, String> requestHeaders = {
-  //         'eventoUsuarioId': idEventoUsuario.toString(),
-  //         'Authorization': "Bearer " + controller.token.value
-  //       };
-  //       var response = await API.requestGet(
-  //           'usuario/buscar-documentos-usuario', requestHeaders);
-  //       if (response.statusCode == 200) {
-  //         Iterable lista = json.decode(response.body);
-  //         setState(() {
-  //           documentos = lista.map((model) => DocumentoUsuario.fromJson(model)).toList();
-  //           loading = false;
-  //         });
-  //       } else {
-  //         Get.offAndToNamed(Routes.LOGIN);
-  //       }
-  //     } else {
-  //       Get.offAndToNamed(Routes.LOGIN);
-  //     }
-  //   }
-  //
-  //   Future<void> visualizarDocumento(int idDocumentoUsuario) async {
-  //     if (controller.token.value.isNotEmpty) {
-  //       Map<String, String> requestHeaders = {
-  //         'idDocumentoUsuario': idDocumentoUsuario.toString(),
-  //         'Authorization': "Bearer " + controller.token.value
-  //       };
-  //       var response = await API.requestGet(
-  //           'documentos/visualizar_documento', requestHeaders);
-  //       if (response.statusCode == 200) {
-  //         await buscarDocumentosUsuario();
-  //       }
-  //     }
-  //   }
-  //
-  //   // Executa a busca dos documentos antes de abrir o Dialog
-  //   await buscarDocumentosUsuario();
-  //
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.all(Radius.circular(8.0))),
-  //         child: LayoutBuilder(
-  //           builder: (context, constraints) {
-  //             // Calcular a largura máxima necessária
-  //             double maxWidth = documentos.fold(0.0, (previousValue, doc) {
-  //               final textWidth = (TextPainter(
-  //                 text: TextSpan(text: doc.documento.nome, style: TextStyle(fontSize: 16)),
-  //                 maxLines: 1,
-  //                 textDirection: TextDirection.ltr,
-  //               )..layout()).size.width;
-  //
-  //               return textWidth > previousValue ? textWidth : previousValue;
-  //             });
-  //
-  //             // Adicionar padding e limitar a largura ao tamanho da tela
-  //             double dialogWidth = maxWidth + 300;
-  //             dialogWidth = dialogWidth.clamp(200.0, constraints.maxWidth * 0.9);
-  //
-  //             return Container(
-  //               width: dialogWidth,
-  //               padding: EdgeInsets.all(16.0),
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   // Linha para o botão de fechar
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Text("Documentos", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-  //                       IconButton(
-  //                         icon: Icon(Icons.close),
-  //                         onPressed: () {
-  //                           Navigator.of(context).pop();
-  //                         },
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   // Indicador de carregamento ou lista de documentos
-  //                   loading
-  //                       ? CircularProgressIndicator()
-  //                       : documentos.isNotEmpty
-  //                       ? ListView.builder(
-  //                     shrinkWrap: true,
-  //                     itemCount: documentos.length,
-  //                     itemBuilder: (context, index) {
-  //                       return ListTile(
-  //                         title: Text(documentos[index].documento.nome!,style:  TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-  //                         subtitle: documentos[index].entregue == true ?  Text("Status: Entregue") : Text("Status: Pendente"),
-  //                         trailing: documentos[index].entregue == true ? Row(
-  //                           mainAxisSize: MainAxisSize.min,
-  //                           children: [
-  //                             IconButton(
-  //                               onPressed: () {
-  //                                 AddAlerta(context, documentos[index]);
-  //                               },
-  //                               icon: Tooltip(message: "Adicionar Alerta", child: Icon(Icons.notification_add),),
-  //                             ),
-  //                             badges.Badge(
-  //                               showBadge: !documentos[index].visualizado,
-  //                               position: badges.BadgePosition.bottomStart(start: 28, bottom: 25),
-  //                               child: IconButton(
-  //                                 onPressed: () async {
-  //                                   await visualizarDocumento(documentos[index].id);
-  //                                   MontaPDF.ConsultaEMontaPDFAnexo(context, documentos[index], controller.token.value);
-  //                                 },
-  //                                 icon: Tooltip(message: "Visualizar Anexo", child: Icon(Icons.remove_red_eye),),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ) : SizedBox(),
-  //                       );
-  //                     },
-  //                   )
-  //                       : Text("Nenhum documento encontrado."),
-  //                 ],
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-
-// Função para visualizar o anexo
-  void visualizarAnexo(DocumentoUsuario documento) {
-    // Implementar a lógica para visualizar o anexo aqui
-  }
-
-
-
-
-// Future<String?> CardDocumentos(BuildContext context, int idEventoUsuario) async {
-  //   bool loading = true;
-  //   List<DocumentoUsuario> documentos = [];
-  //
-  //   // Função para buscar os documentos do usuário
-  //   Future<void> buscarDocumentosUsuario() async {
-  //     if (controller.token.value.isNotEmpty) {
-  //       Map<String, String> requestHeaders = {
-  //         'eventoUsuarioId': idEventoUsuario.toString(),
-  //         'Authorization': "Bearer " + controller.token.value
-  //       };
-  //       var response = await API.requestGet(
-  //           'usuario/buscar-documentos-usuario', requestHeaders);
-  //       if (response.statusCode == 200) {
-  //         Iterable lista = json.decode(response.body);
-  //         documentos = lista.map((model) => DocumentoUsuario.fromJson(model)).toList();
-  //         loading = false;
-  //       } else {
-  //         Get.offAndToNamed(Routes.LOGIN);
-  //       }
-  //     } else {
-  //       Get.offAndToNamed(Routes.LOGIN);
-  //     }
-  //   }
-  //
-  //   // Executa a busca dos documentos antes de abrir o Dialog
-  //   await buscarDocumentosUsuario();
-  //
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.all(Radius.circular(8.0))),
-  //         child: Container(
-  //           padding: EdgeInsets.all(16.0),
-  //           child: loading
-  //               ? CircularProgressIndicator() // Mostra um indicador de carregamento enquanto os documentos estão sendo carregados
-  //               : documentos.isNotEmpty
-  //               ? ListView.builder(
-  //             shrinkWrap: true,
-  //             itemCount: documentos.length,
-  //             itemBuilder: (context, index) {
-  //               return ListTile(
-  //                 title: Text(documentos[index].documento.nome!),
-  //                 subtitle: documentos[index].entregue == true?  Text("Status: Entregue") : Text("Status: Pendente"),
-  //               );
-  //             },
-  //           )
-  //               : Text("Nenhum documento encontrado."),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Future<String?> inserirColaborador(BuildContext context) async {
     List<Usuario> professoresDB = await _buscarProfessores();

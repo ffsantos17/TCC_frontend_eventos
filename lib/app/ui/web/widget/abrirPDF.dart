@@ -11,7 +11,6 @@ Future<String?> AbrirPDF(context, viewType, extensao, nomedoc, url){
     context: context,
     builder: (BuildContext context) {
       return Dialog(
-        // contentPadding: EdgeInsets.all(20), // Remove o padding padrão
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
                 Radius.circular(0.0))),
@@ -64,7 +63,7 @@ Future<String?> AbrirPDF(context, viewType, extensao, nomedoc, url){
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius
                                         .circular(
-                                        7), // <-- Radius
+                                        7),
                                   ),
                                 )
                             ),
@@ -72,7 +71,6 @@ Future<String?> AbrirPDF(context, viewType, extensao, nomedoc, url){
                         ],),
                     ),
                   ),
-                  // SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets
                         .all(8.0),
@@ -97,12 +95,11 @@ Future<String?> AbrirPDF(context, viewType, extensao, nomedoc, url){
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius
                                 .circular(
-                                7), // <-- Radius
+                                7),
                           ),
                         )
                     ),
                   ),
-                  // SizedBox(height: 5),
                 ],
               ),
             ],

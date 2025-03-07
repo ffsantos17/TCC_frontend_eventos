@@ -41,39 +41,6 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
   late bool useRoute = false;
   String id = Get.parameters['id'] ?? '';
 
-  _obterToken() async{
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-      storedToken = prefs.getString('if_travel_jwt_token') ?? '';
-    });
-  }
-
-
-  _buscarUsuario() async{
-    await _obterToken();
-    if(storedToken != '') {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken
-      };
-      var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
-      if(response.statusCode == 200) {
-        response = json.decode(response.body);
-        setState(() {
-          usuario = Usuario.fromJson(response);
-          // eventosUsuario = usuario.eventos!.map((e) {
-          //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          // }).toList();
-          eventoIds = usuario.eventos!.map((e) => e.evento.id!).toSet();
-          inscrito = eventoIds.contains(evento.id!);
-          loading = false;
-        });
-      }
-    }else{
-      setState(() {
-        loading=false;
-      });
-    }
-  }
 
   Future<int> _buscarVagas(id) async{
       Map<String, String> requestHeaders = {
@@ -82,9 +49,6 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
       var response = await API.requestGet('eventos/obter-vagas', requestHeaders);
       if(response.statusCode == 200) {
         return int.parse(response.body);
-        // setState(() {
-        //   vagasDisponiveis = int.parse(response.body);
-        // });
       }else{
         return 0;
       }
@@ -469,37 +433,6 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                   ),
                 ),
               ) : SizedBox(),
-              // Container(
-              //   margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
-              //   child: Align(
-              //     alignment: Alignment.topLeft,
-              //     child: Container(
-              //       width: 960,
-              //       child:
-              //       Container(
-              //         decoration: BoxDecoration(
-              //           color: Color(0xFF0D7DF2),
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         child: Container(
-              //           width: 480,
-              //           padding: EdgeInsets.fromLTRB(0, 12, 0, 12),
-              //           child:
-              //           Text(
-              //             'Register now',
-              //             style: TextStyle(
-              //
-              //               fontWeight: FontWeight.w700,
-              //               fontSize: 16,
-              //               height: 1.5,
-              //               color: Color(0xFFF7FAFC),
-              //             ),
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),

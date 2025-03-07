@@ -202,23 +202,6 @@ class _ListaUsuariosState extends State<ListaUsuarios> {
               ],
             ),
             SizedBox(height: 20,),
-            // TextFormField(
-            //   controller: buscaController,
-            //   onChanged: _search,
-            //   decoration: InputDecoration(
-            //     hintText: "Buscar",
-            //     border: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0)),
-            //     focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-            //     prefixIcon: Icon(Icons.search),
-            //     suffixIcon: IconButton(
-            //       icon: Icon(Icons.clear),
-            //       onPressed: () {
-            //         buscaController.text = '';
-            //         _search(buscaController.text);
-            //       },
-            //     ),
-            //   ),
-            // ),
             loading
                 ? Center(child: CircularProgressIndicator())
                 : Container(

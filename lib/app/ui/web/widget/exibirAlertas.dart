@@ -104,8 +104,6 @@ Future<String?> ExibirAlerta(context, Alerta alerta) async {
       };
       var response = await API.requestGet(
           'alerta/ler_alerta', requestHeaders);
-      // if (response.statusCode == 200) {
-      // }
     }
   }
   await lerAlerta(alerta.id);

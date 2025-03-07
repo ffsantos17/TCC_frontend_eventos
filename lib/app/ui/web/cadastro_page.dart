@@ -4,10 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:if_travel/api.dart';
 import 'package:if_travel/app/routes/app_routes.dart';
-import 'package:if_travel/app/ui/web/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config/app_colors.dart';
-import 'package:http/http.dart' as http;
 
 
 class TelaCadastro extends StatefulWidget {

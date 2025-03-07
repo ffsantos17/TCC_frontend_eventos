@@ -33,82 +33,11 @@ class _EventoCardState extends State<EventoCard> {
   bool loading = true;
   bool inscrito = false;
 
-  _obterToken() async{
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-    storedToken = prefs.getString('if_travel_jwt_token')!;
-    });
-  }
-
-
-  _buscarUsuario() async{
-    final SharedPreferences prefs = await _prefs;
-    if(storedToken != '') {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken
-      };
-      var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
-      if(response.statusCode == 200) {
-        response = json.decode(response.body);
-        setState(() {
-          usuario = Usuario.fromJson(response);
-          // eventosUsuario = usuario.eventos!.map((e) {
-          //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          // }).toList();
-          eventoIds = eventosUsuario.map((e) => e.eventoId).toSet();
-          inscrito = eventoIds.contains(widget.evento.id!);
-          loading = false;
-        });
-      }
-    }else{
-      setState(() {
-        loading=false;
-      });
-    }
-  }
-
-  _buscarVagas(id) async{
-    if(storedToken != null) {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken,
-        'id': id.toString()
-      };
-      var response = await API.requestGet('eventos/obter-vagas', requestHeaders);
-      if(response.statusCode == 200) {
-        //response = json.decode(response.body);
-        return response.body;
-      }else{
-        return "erro";
-      }
-    }
-  }
-
-  _inscrever(eventoId, usuarioId) async{
-
-    var body = {
-      "eventoId": eventoId.toString(),
-      "usuarioId": usuarioId.toString()
-    };
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken,
-        'eventoId': eventoId.toString(),
-        'usuarioId': usuarioId.toString()
-      };
-      var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
-      if(response.statusCode == 200) {
-        //response = json.decode(response.body);
-        return response.body;
-      }else{
-        return "erro";
-      }
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // _obterToken();
-    // _buscarUsuario();
     loading = false;
   }
 

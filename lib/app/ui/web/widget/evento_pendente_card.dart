@@ -1,15 +1,11 @@
 import 'dart:convert';
 
-import 'package:brasil_datetime/brasil_datetime.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:if_travel/app/controller/authController.dart';
-import 'package:if_travel/app/data/model/evento.dart';
 import 'package:if_travel/app/data/model/usuario.dart';
-import 'package:if_travel/app/ui/web/widget/criarDocumento.dart';
 import 'package:if_travel/config/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -38,77 +34,6 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
   int totalDocumentos = 0;
   int documentosPendentes = 0;
   int documentosEntregues = 0;
-
-
-  _obterToken() async{
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-      storedToken = prefs.getString('if_travel_jwt_token')!;
-    });
-  }
-
-
-  _buscarUsuario() async{
-    final SharedPreferences prefs = await _prefs;
-    if(storedToken != '') {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken
-      };
-      var response = await API.requestPost('auth/obter-usuario', null, requestHeaders);
-      if(response.statusCode == 200) {
-        response = json.decode(response.body);
-        setState(() {
-          usuario = Usuario.fromJson(response);
-          // eventosUsuario = usuario.eventos!.map((e) {
-          //   return EventoUsuario.fromJson(Map<String, dynamic>.from(e));
-          // }).toList();
-          eventoIds = eventosUsuario.map((e) => e.eventoId).toSet();
-          inscrito = eventoIds.contains(widget.evento.id!);
-          loading = false;
-        });
-      }
-    }else{
-      setState(() {
-        loading=false;
-      });
-    }
-  }
-
-  _buscarVagas(id) async{
-    if(storedToken != null) {
-      Map<String, String> requestHeaders = {
-        'Authorization': "Bearer "+storedToken,
-        'id': id.toString()
-      };
-      var response = await API.requestGet('eventos/obter-vagas', requestHeaders);
-      if(response.statusCode == 200) {
-        //response = json.decode(response.body);
-        return response.body;
-      }else{
-        return "erro";
-      }
-    }
-  }
-
-  _inscrever(eventoId, usuarioId) async{
-
-    var body = {
-      "eventoId": eventoId.toString(),
-      "usuarioId": usuarioId.toString()
-    };
-    Map<String, String> requestHeaders = {
-      'Authorization': "Bearer "+storedToken,
-      'eventoId': eventoId.toString(),
-      'usuarioId': usuarioId.toString()
-    };
-    var response = await API.requestPost('usuario/registrar-usuario-evento', body, requestHeaders);
-    if(response.statusCode == 200) {
-      //response = json.decode(response.body);
-      return response.body;
-    }else{
-      return "erro";
-    }
-  }
 
   @override
   void initState() {
@@ -159,27 +84,11 @@ class _EventoPendenteCardState extends State<EventoPendenteCard> {
                     // Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', e.id.toString()), arguments: {'evento': e, 'useRoute': false})
                     final result = await Get.toNamed(Routes.EVENTO_INSCRITO.replaceAll(':id', widget.evento.id.toString()), arguments: {'evento': widget.evento, 'useRoute': true});
                     if (result == true) {
-                      // Recarrega os dados do Dashboard
                       print(result);
                       setState(() {
-                        // Atualize seus dados aqui
                         controller.obterUsuario();
                       });
                     }
-                    // var verify = eventosUsuario.where((element) => element.id == widget.evento.id!);
-                    // alertConfirm(context, _buscarVagas, widget.evento.id!, _inscrever, usuario.id);
-
-                    // String response = await _buscarVagas(widget.evento.id!);
-                    // int vagas = int.parse(response);
-                    // if(response == 'erro'){
-                    //   print("erro");
-                    // }else{
-                    //   if(vagas > 0){
-                    //     print("Há Vagas");
-                    //   }else{
-                    //     alertErro(context, 'As vagas esgotaram!');
-                    //   }
-                    // }
                   },
                   child: Text("Detalhes", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.all(17),

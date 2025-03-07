@@ -19,9 +19,7 @@ import 'package:badges/badges.dart' as badges;
 import '../../../api.dart';
 import '../../../config/app_colors.dart';
 import '../../controller/authController.dart';
-import '../../data/model/evento.dart';
 import '../../data/model/eventoUsuario.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'dart:ui_web' as ui;
 
 class EventoInscrito extends StatefulWidget {
@@ -50,8 +48,6 @@ class _EventoInscritoState extends State<EventoInscrito> {
         Map<String, String> requestHeaders = {
           'Authorization': "Bearer " + controller.token.value
         };
-        // API.requestWithFile('documentos/upload', xFile, requestHeaders);
-        print(xFile.name);
       });
     }
   }
@@ -80,17 +76,6 @@ class _EventoInscritoState extends State<EventoInscrito> {
         ToastificationDefault(
             context, "Tipo de arquivo inválido", "Aceito apenas tipo de arquivo .pdf", Icons.warning, AppColors.redColor);
       }
-      // toastification.show(
-      //   context: context,
-      //   icon: Icon(Icons.warning),
-      //   type: ToastificationType.warning,
-      //   style: ToastificationStyle.minimal,
-      //   title: Text('Atenção estoque baixo'),
-      //   description: Text('O produto está com estoque baixo'),
-      //   alignment: Alignment.topRight,
-      //   autoCloseDuration: const Duration(seconds: 4),
-      //   borderRadius: BorderRadius.circular(4.0),
-      // );
     }
   }
 
@@ -103,9 +88,6 @@ class _EventoInscritoState extends State<EventoInscrito> {
 
   }
 
-  // Future<void> dragFiles(DropDoneDetails details) async {
-  //   await setFiles(details.files);
-  // }
 
   Future<void> deleteFiles(XFile fileToDelete) async {
     setState(() {
@@ -385,21 +367,6 @@ class _EventoInscritoState extends State<EventoInscrito> {
                                           'Erro ao fazer a requisição: ${response
                                               .statusCode}');
                                     }
-                                    // Map<String, String> requestHeaders = {
-                                    //   'Authorization': "Bearer "+controller.token.value
-                                    // };
-                                    // print(requestHeaders.toString());
-                                    // var response = await API.requestGet('documentos/download/'+evento.documentos[index].nomeAnexo, requestHeaders);
-                                    // if(response.statusCode == 200) {
-                                    //   final Uint8List bytes = response.bodyBytes;
-                                    //   final blob = html.Blob([bytes]);
-                                    //   final url = html.Url.createObjectUrlFromBlob(blob);
-                                    //   final anchor = html.AnchorElement(href: url)
-                                    //     ..setAttribute("download", evento.documentos[index].nomeAnexo)
-                                    //     ..click();
-                                    //   html.Url.revokeObjectUrl(url);
-                                    //
-                                    // }
                                   }, icon: Icon(Icons.remove_red_eye, color: AppColors.mainBlueColor,)),
                                 ),
                                 Tooltip(

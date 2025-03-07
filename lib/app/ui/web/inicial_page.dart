@@ -23,7 +23,6 @@ class InicialPage extends StatefulWidget {
 class _InicialPageState extends State<InicialPage> {
   List<Evento> eventosDB = <Evento>[];
   List<Evento> eventos = <Evento>[];
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TextEditingController buscaController = new TextEditingController();
   Evento topEvento = Evento(documentos: []);
   bool loading = true;
@@ -71,19 +70,6 @@ class _InicialPageState extends State<InicialPage> {
     return Scaffold(
       appBar: AppBar(title: Text("Gerenciador de Eventos", style: TextStyle(color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold)),
       actions: [
-        // Padding(
-        //   padding: EdgeInsets.only(top: 10, left: 20, right: 0),
-        //   child: ElevatedButton(onPressed: (){Get.toNamed(Routes.CADASTRO);}, child: Text("Cadastre-se", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-        //     style: ElevatedButton.styleFrom(
-        //         padding: EdgeInsets.all(17),
-        //         minimumSize: Size(0, 0),
-        //         elevation: 0,
-        //         backgroundColor: Color(0xff3853a1),
-        //         shape: RoundedRectangleBorder(
-        //           borderRadius: BorderRadius.circular(10), // <-- Radius
-        //         ),
-        //     ),),
-        // ),
         Padding(
           padding: EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
           child: ElevatedButton(onPressed: (){

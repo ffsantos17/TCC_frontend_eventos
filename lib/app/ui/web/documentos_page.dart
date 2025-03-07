@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:if_travel/app/data/model/documento.dart';
-import 'package:if_travel/app/routes/app_routes.dart';
 import 'package:if_travel/app/ui/web/widget/criarDocumento.dart';
 import 'package:if_travel/app/ui/web/widget/data_grid.dart';
 import 'package:if_travel/app/utils/consultaDocEMontaPDF.dart';
@@ -28,19 +26,12 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
   List<ColumnGrid> colunas = [];
 
   _obterDocumentos() async {
-    // Map<String, String> requestHeaders = {
-    //   'id': id.toString()
-    // };
     var response = await API.requestGet('documentos/listar', null);
     print(response.statusCode);
     if(response.statusCode == 200) {
-      //utf8.decode(response.body);
-      // var teste =utf8.decode(response.bodyBytes);
       setState(() {
       Iterable lista = json.decode(response.body);
         documentos = lista.map((model) => Documento.fromJson(model)).toList();
-      // Documento doc = Documento.fromJson(response.body);
-      //   evento = ev;
       });
       _montarTabela();
     }
@@ -48,7 +39,6 @@ class _ListaDocumentosState extends State<ListaDocumentos> {
 
   _montarTabela(){
     _documentoData = documentos.map<DataGridRow>((d) => DataGridRow(cells: [
-      // DataGridCell<String>(columnName: 'id', value: d.id.toString()),
       DataGridCell<String>(columnName: 'nome', value: d.nome),
       DataGridCell<String>(columnName: 'pModelo', value: d.possuiModelo == true ? "Sim" : "Não"),
       DataGridCell<String>(columnName: 'tipoArquivo', value: d.modelo != null ? p.extension(d.modelo!) : ""),

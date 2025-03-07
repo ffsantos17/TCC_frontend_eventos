@@ -7,23 +7,6 @@ class Documento{
 
   Documento({this.id, this.nome, this.possuiModelo, this.modelo, this.associado});
 
-  List<Documento> get documentos{
-    return [
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-      Documento(id: 1,nome: "Doc1",possuiModelo:  true,modelo:  "Teste"),
-    ];
-  }
-
   Documento.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         nome = json['nome'],

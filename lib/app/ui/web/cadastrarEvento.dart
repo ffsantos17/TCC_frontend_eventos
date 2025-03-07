@@ -25,7 +25,6 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'dart:ui_web' as ui;
 
 import 'widget/calendario.dart';
@@ -40,7 +39,6 @@ class CadastrarEvento extends StatefulWidget {
 }
 
 class _CadastrarEventoState extends State<CadastrarEvento> {
-  final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
   final AuthController controller = Get.find();
   DateTime? dataInicio = null;
   DateTime? dataFim = null;
@@ -93,15 +91,6 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
       'Authorization': "Bearer " + controller.token.value
     };
     var response = await API.requestWithFile('documentos/criar', documento, requestHeaders, nomeDoc);
-    // var body = {
-    //   "nome": nome,
-    //   "possuiModelo": pModelo.toString(),
-    //   "modelo": documento.name
-    // };
-    // Map<String, String> requestHeaders = {
-    //   'Authorization': "Bearer "+controller.token.value,
-    // };
-    // var response = await API.requestPost('documentos/criar', body, requestHeaders);
     if(response.statusCode == 200) {
       await _buscarDocumentos();
     }else{
@@ -137,15 +126,6 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
       'Authorization': "Bearer " + controller.token.value
     };
     var response = await API.requestWithFile('eventos/cadastrar', imagem, requestHeaders, nomeImg);
-    // var body = {
-    //   "nome": nome,
-    //   "possuiModelo": pModelo.toString(),
-    //   "modelo": documento.name
-    // };
-    // Map<String, String> requestHeaders = {
-    //   'Authorization': "Bearer "+controller.token.value,
-    // };
-    // var response = await API.requestPost('documentos/criar', body, requestHeaders);
     print(response.statusCode);
     if(response.statusCode == 200) {
       controller.obterUsuario();
@@ -530,17 +510,6 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
                                         'Erro ao fazer a requisição: ${response
                                             .statusCode}');
                                   }
-                                // }
-                                  // if(response.statusCode == 200) {
-                                  //   final Uint8List bytes = response.bodyBytes;
-                                  //   final blob = html.Blob([bytes]);
-                                  //   final url = html.Url.createObjectUrlFromBlob(blob);
-                                  //   final anchor = html.AnchorElement(href: url)
-                                  //     ..setAttribute("download", documentos[index].modelo!)
-                                  //     ..click();
-                                  //   html.Url.revokeObjectUrl(url);
-                                  //
-                                  // }
                               }, icon: Icon(Icons.remove_red_eye),) : SizedBox()
                             ],
                           ),
@@ -558,10 +527,6 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
               }
           ),
           actions: <Widget>[
-            // TextButton(
-            //   onPressed: () => Navigator.pop(context, 'cancelar'),
-            //   child: const Text('Cancelar'),
-            // ),
             TextButton(
               onPressed: () {
                 setState(() {
@@ -733,66 +698,3 @@ class _CadastrarEventoState extends State<CadastrarEvento> {
 
 
 }
-
-// Future<String?> Calendario(context ,function, dataInicio, dataFim){
-//   return showDialog(
-//     context: context,
-//     builder: (context) {
-//       return Dialog(
-//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-//         elevation: 16,
-//         child: SizedBox(
-//           height: 500,
-//           width: 500,
-//           child: SfDateRangePicker(
-//               onSelectionChanged: function,
-//               selectionMode: DateRangePickerSelectionMode.range,
-//               enablePastDates: false,
-//               showActionButtons: true,
-//               onCancel: (){Navigator.pop(context);},
-//               onSubmit: (Object? value) {
-//               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-//                 content: Text(
-//                   'Selection Confirmed',
-//                 ),
-//                 duration: Duration(milliseconds: 400),
-//               ));
-//               Navigator.pop(context);
-//             },
-//               initialSelectedRange: dataInicio != null ? PickerDateRange(
-//                   dataInicio,
-//                   dataFim) : null,
-//             ),
-//         ),
-//       );
-//     },
-//   );
-// }
-
-// Future<String?> AssociarDocumentos(context, documentos){
-//   return showDialog(
-//       context: context,
-//       builder: (context) {
-//       return Dialog(
-//         child: ListView.builder(
-//           itemCount: documentos.length,
-//           itemBuilder: (context, index) {
-//             return CheckboxListTile(
-//               title: Text(documentos[index].nome!),
-//               value: documentos[index].associado,
-//               onChanged: (newValue) {
-//                 // if(newValue == true){
-//                 //   _counter++;
-//                 // }else{
-//                 //   _counter--;
-//                 // }
-//                 // setState(() {
-//                 //   listPlayers[index].checked = newValue ?? false;
-//                 // });
-//               },
-//             );
-//           },
-//         ),
-//       );
-//   });
-// }
