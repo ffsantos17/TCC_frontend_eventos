@@ -36,7 +36,6 @@ Este repositório contém o código-fonte do front-end do sistema gerenciador de
 
 ### **Estrutura do Projeto**
 
-```markdown
 ## Estrutura do Projeto
 - `lib/app`: Contém o código-fonte principal do aplicativo.
   - `main.dart`: Ponto de entrada do aplicativo.
