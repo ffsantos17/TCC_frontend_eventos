@@ -40,5 +40,5 @@ Este repositório contém o código-fonte do front-end do sistema gerenciador de
 - `lib/app`: Contém o código-fonte principal do aplicativo.
   - `main.dart`: Ponto de entrada do aplicativo.
   - `ui/web/`: Telas do aplicativo (ex: tela de login, dashboard, eventos).
-  - `ui/web/widgets//`: Componentes reutilizáveis.
+  - `ui/web/widgets/`: Componentes reutilizáveis.
   - `api.dart/`: Serviços para comunicação com a API do back-end.
