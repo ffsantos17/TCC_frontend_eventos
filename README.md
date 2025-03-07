@@ -16,7 +16,7 @@ Este repositório contém o código-fonte do front-end do sistema gerenciador de
 ### Passos para Execução
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/seu-usuario/frontend-eventos.git
+   git clone https://github.com/ffsantos17/TCC_frontend_eventos.git
 
 2. Navegue até a pasta do projeto:
 
