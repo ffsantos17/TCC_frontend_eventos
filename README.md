@@ -1,16 +1,19 @@
-# if_travel
+# Sistema Gerenciador de Eventos - Front-End (Flutter)
 
-travel
+Este repositório contém o código-fonte do front-end do sistema gerenciador de eventos, desenvolvido utilizando o framework **Flutter**. O front-end é responsável pela interface do usuário, permitindo que alunos visualizem eventos, realizem inscrições e anexem documentos, enquanto os professores gerenciam eventos e aprovam inscrições.
 
-## Getting Started
+## Tecnologias Utilizadas
+- **Flutter**: Framework para desenvolvimento de interfaces multiplataforma.
+- **Dart**: Linguagem de programação utilizada pelo Flutter.
+- **HTTP**: Para comunicação com a API do back-end.
 
-This project is a starting point for a Flutter application.
+## Como Executar o Projeto
 
-A few resources to get you started if this is your first Flutter project:
+### Pré-requisitos
+- **Flutter SDK**: Certifique-se de ter o Flutter instalado. Siga as instruções em [flutter.dev](https://flutter.dev).
+- **Android Studio/VSCode**: Para desenvolvimento e execução do projeto.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Passos para Execução
+1. Clone este repositório:
+   ```bash
+   git clone https://github.com/seu-usuario/frontend-eventos.git
