@@ -17,3 +17,37 @@ Este repositório contém o código-fonte do front-end do sistema gerenciador de
 1. Clone este repositório:
    ```bash
    git clone https://github.com/seu-usuario/frontend-eventos.git
+
+2. Navegue até a pasta do projeto:
+
+   ```bash
+   cd frontend-eventos
+
+3. Instale as dependências:
+
+   ```bash
+   flutter pub get
+4. Execute o projeto:
+
+   ```bash
+   flutter run
+
+---
+
+### **Estrutura do Projeto**
+
+```markdown
+## Estrutura do Projeto
+- `lib/app`: Contém o código-fonte principal do aplicativo.
+  - `main.dart`: Ponto de entrada do aplicativo.
+  - `ui/web/`: Telas do aplicativo (ex: tela de login, dashboard, eventos).
+  - `ui/web/widgets//`: Componentes reutilizáveis.
+  - `api.dart/`: Serviços para comunicação com a API do back-end.
+
+## Contribuição
+Contribuições são bem-vindas! Siga os passos abaixo:
+1. Faça um fork do repositório.
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`).
+3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`).
+4. Envie para a branch (`git push origin feature/nova-feature`).
+5. Abra um Pull Request.
